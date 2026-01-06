@@ -1,4 +1,4 @@
-# Marine Invasive Species Distribution Modeling - Supplementary Code
+# Marine Alien Species Distribution Modeling - Supplementary Code
 
 **Supplementary code and data processing scripts for:**
 
