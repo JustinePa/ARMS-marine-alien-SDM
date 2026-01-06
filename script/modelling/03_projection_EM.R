@@ -34,7 +34,7 @@ if (!file.exists(model_file)) {
 myBiomodEM <- get(load(model_file))
 
 # ========== Load Environmental Layers ==========
-env_path <- "myExpl_shelf_DISTFIX.tif"
+env_path <- "myExpl_shelf.tif"
 if (!file.exists(env_path)) stop("? Environmental raster not found!")
 myExpl <- rast(env_path)
 
@@ -67,4 +67,5 @@ myBiomodEMProj <- BIOMOD_EnsembleForecasting(
   models.chosen = keep_em,    # <-- full names like Arcuatulasenhousia_EMwmeanByTSS_mergedData_...
   nb.cpu        = n_cores,
   do.stack      = FALSE
+
 )
