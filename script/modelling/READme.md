@@ -16,28 +16,28 @@ All steps are designed for parallel execution on HPC clusters using SLURM job ar
 ## Scripts
 
 ### 1. Individual Modeling
-- **modeling_mixedPA.R** - Main modeling script with mixed pseudo-absence strategy
-- **modeling_mixedPA_array.slurm** - SLURM array job for parallel processing
+- **01_modeling_mixedPA.R** - Main modeling script with mixed pseudo-absence strategy
+- **01_modeling_mixedPA_array.slurm** - SLURM array job for parallel processing
 
 **Algorithms:** Random Forest (RF), MAXNET, MARS, GAM, XGBoost  
 **Cross-validation:** 5-fold CV  
 **Pseudo-absences:** Mixed strategy (disk + random), 20-100 km from presences for the disk method
 
 ### 2. Ensemble Modeling
-- **ensemble.R** - Create ensemble models from individual algorithms
-- **ensemble_array.slurm** - SLURM array job
+- **02_ensemble.R** - Create ensemble models from individual algorithms
+- **02_ensemble_array.slurm** - SLURM array job
 
 **Ensemble methods:** EMwmean (weighted mean), EMcv (coefficient of variation), EMca (committee averaging)  
 **Selection thresholds:** TSS ≥ 0.6, ROC ≥ 0.85
 
 ### 3. Current Projections
-- **projection_EM.R** - Project ensemble models to current environmental conditions
-- **projection_EM.slurm** - Single projection job
-- **projection_EM_array.slurm** - Array job for multiple species
+- **03_projection_EM.R** - Project ensemble models to current environmental conditions
+- **03_projection_EM.slurm** - Single projection job
+- **03_projection_EM_array.slurm** - Array job for multiple species
 
 ### 4. Future Projections
-- **projection_EM_future.R** - Project to future climate scenarios
-- **projection_future_EM_array.slurm** - Array job for all scenarios
+- **04_projection_EM_future.R** - Project to future climate scenarios
+- **04_projection_future_EM_array.slurm** - Array job for all scenarios
 
 ## Requirements
 
