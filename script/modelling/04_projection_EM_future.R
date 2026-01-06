@@ -33,7 +33,7 @@ if (!inherits(myBiomodEM, "BIOMOD.ensemble.models.out")) {
 }
 
 # ========== Load Reference Environmental Layers ==========
-env_path <- "myExpl_shelf_DISTFIX.tif"
+env_path <- "myExpl_shelf.tif"
 if (!file.exists(env_path)) stop("? Environmental raster not found: ", env_path)
 myExpl <- rast(env_path)
 
@@ -53,7 +53,7 @@ scenarios <- c("ssp585")
 for (scenario in scenarios) {
   proj_name       <- paste0(scenario, "EM_", myRespName, "_", modeling_id)
   proj_future_dir <- file.path(model_dir, paste0("proj_", proj_name))
-  env_path_future <- file.path(paste0(scenario, "_layers_extrap_2100_shelf_DISTFIX_2.tif"))
+  env_path_future <- file.path(paste0(scenario, "_shelf_2100.tif"))
 
   if (!file.exists(env_path_future)) {
     cat("! Missing env for ", scenario, ": ", env_path_future, " — skipping this scenario.\n", sep = "")
