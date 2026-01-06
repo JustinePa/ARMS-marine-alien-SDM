@@ -43,7 +43,7 @@ ALGORITHMS="RF,MAXNET,MARS,GAM,XGBOOST"
 CV_STRATEGY="kfold"
 CV_K=5
 N_CORES=4
-ENV="myExpl_shelf_DISTFIX.tif"
+ENV="myExpl_shelf.tif"
 
 # Distances in meters (20–100 km)
 PA_DIST_MIN=20000
