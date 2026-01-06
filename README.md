@@ -19,7 +19,7 @@ This repository contains all code used to process data and generate figures for 
 
 The repository is organized into three main components:
 
-### 📊 1. Environmental Data Processing
+### 1. Environmental Data Processing
 Scripts for downloading and preparing Bio-ORACLE environmental layers for species distribution modeling.
 
 - **Location:** `script/environmental_data/`
@@ -32,7 +32,7 @@ Scripts for downloading and preparing Bio-ORACLE environmental layers for specie
 
 ---
 
-### 🗺️ 2. Occurrence Data Processing
+### 2. Occurrence Data Processing
 Scripts for downloading, merging, and spatially thinning species occurrence records from GBIF and OBIS.
 
 - **Location:** `script/occurrence_data/`
@@ -45,7 +45,7 @@ Scripts for downloading, merging, and spatially thinning species occurrence reco
 
 ---
 
-### 📈 3. Figure Generation
+### 3. Figure Generation
 Scripts for creating all publication figures from modeling results.
 
 - **Location:** `script/figures/`
