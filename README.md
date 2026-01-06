@@ -110,7 +110,3 @@ PhD Student, Marine Biology
 University of Gothenburg  
 Email: justine.pagnier@gu.se
 
-
----
-
-**Last updated:** January 2025
