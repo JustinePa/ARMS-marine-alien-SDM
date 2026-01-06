@@ -22,9 +22,9 @@ The repository is organized into three main components:
 ### 1. Environmental Data Processing
 Scripts for downloading and preparing Bio-ORACLE environmental layers for species distribution modeling.
 
-- **Location:** `script/pre-modelling/environmental_data/`
+- **Location:** `script/pre-modelling/environmental data/`
 - **Scripts:** 01-08 (sequential pipeline)
-- **See:** [Environmental Data README](script/pre-modelling/environmental_data/README.md)
+- **See:** [Environmental Data README](script/pre-modelling/environmental data/README.md)
 
 **Key outputs:**
 - Current conditions (2000-2020): `myExpl_final.tif`, `myExpl_shelf.tif`
@@ -35,9 +35,9 @@ Scripts for downloading and preparing Bio-ORACLE environmental layers for specie
 ### 2. Occurrence Data Processing
 Scripts for downloading, merging, and spatially thinning species occurrence records from GBIF and OBIS.
 
-- **Location:** `script/pre-modelling/occurrence_data/`
+- **Location:** `script/pre-modelling/occurrence data/`
 - **Scripts:** 01-04 (sequential pipeline)
-- **See:** [Occurrence Data README](script/pre-modelling/occurrence_data/README.md)
+- **See:** [Occurrence Data README](script/pre-modelling/occurrence data/README.md)
 
 **Key outputs:**
 - Merged occurrence data with duplicates removed
