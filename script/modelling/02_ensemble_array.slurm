@@ -5,7 +5,7 @@
 #SBATCH --partition=main
 #SBATCH -A 			# Add your project name
 #SBATCH --ntasks=1
-#SBATCH --array=1-83  	# Adjust this based on your species list length
+#SBATCH --array=1-69  	# Adjust this based on your species list length
 
 # --- Load modules ---
 module purge
@@ -29,7 +29,7 @@ export RSTUDIO=0
 cd 						# Add you project directory path
 
 # --- Get species from species_list.txt ---
-species_list="species_list.txt"
+species_list="species_list_ensemble.txt"
 SPECIES=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$species_list")
 SPECIES_SAFE=$(echo "$SPECIES" | tr ' ' '_' | tr -d '\r')
 
