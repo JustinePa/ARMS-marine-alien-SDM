@@ -24,7 +24,6 @@ Scripts for downloading and preparing Bio-ORACLE environmental layers for specie
 
 - **Location:** `script/pre-modelling/environmental data/`
 - **Scripts:** 01-08 (sequential pipeline)
-- **See:** [Environmental Data README](script/pre-modelling/environmental data/README.md)
 
 **Key outputs:**
 - Current conditions (2000-2020): `myExpl_final.tif`, `myExpl_shelf.tif`
@@ -37,7 +36,6 @@ Scripts for downloading, merging, and spatially thinning species occurrence reco
 
 - **Location:** `script/pre-modelling/occurrence data/`
 - **Scripts:** 01-04 (sequential pipeline)
-- **See:** [Occurrence Data README](script/pre-modelling/occurrence data/README.md)
 
 **Key outputs:**
 - Merged occurrence data with duplicates removed
@@ -50,7 +48,6 @@ Scripts for creating all publication figures from modeling results.
 
 - **Location:** `script/figures/`
 - **Scripts:** Figure_1.r through Figure_6.R
-- **See:** [Figures README](script/figures/README.md)
 
 **Figures:**
 1. Model performance analysis
