@@ -189,13 +189,13 @@ for (i in 1:length(future_scenarios)) {
       legend.key = element_rect(color = "black", linewidth = 0.3),
       legend.spacing.y = unit(0.8, "cm"),
       axis.title = element_blank(),
-      axis.text = element_text(size = 22, color = "grey30"),
+      axis.text = element_text(size = 28, color = "grey30"),
       plot.margin = margin(10, 10, 10, 10)
     )
 
   all_diff_plots[[i]] <- p_diff
 
-  cat(sprintf("✅ Panel %d created for %s\n", i + 1, scenario_label))
+  cat(sprintf("Panel %d created for %s\n", i + 1, scenario_label))
 
   # Clean up
   rm(r_future_suit, r_diff, df_diff)
@@ -203,9 +203,9 @@ for (i in 1:length(future_scenarios)) {
 }
 
 # Display category statistics for all scenarios
-cat("\n========================================\n")
+
 cat("CATEGORY STATISTICS BY SCENARIO\n")
-cat("========================================\n")
+
 
 for (scenario_name in names(all_category_stats)) {
   scenario_label <- toupper(gsub("ssp", "SSP", scenario_name))
@@ -227,51 +227,59 @@ for (scenario_name in names(all_category_stats)) {
   cat(sprintf("%-40s %12d %11.2f%%\n", "TOTAL", sum(stats$Count), sum(stats$Percentage)))
 }
 
-cat("\n========================================\n\n")
 
-# STEP 5: Combine 3 change panels in a single column with shared legend below
-cat("\nCreating single-column layout with 3 change maps and legend below...\n")
+# STEP 5: Combine 3 change panels in a 2x2 matrix with legend in bottom-right
+cat("\nCreating 2x2 matrix layout with 3 change maps and legend in bottom-right...\n")
 
-# Remove legends from diff plots (we'll add a shared one later)
-all_diff_plots_nolegend <- lapply(all_diff_plots, function(p) p + theme(legend.position = "none"))
+# Remove legends from first two diff plots
+all_diff_plots_nolegend <- list()
+all_diff_plots_nolegend[[1]] <- all_diff_plots[[1]] + theme(legend.position = "none")
+all_diff_plots_nolegend[[2]] <- all_diff_plots[[2]] + theme(legend.position = "none")
+all_diff_plots_nolegend[[3]] <- all_diff_plots[[3]] + theme(legend.position = "none")
 
-# Extract the shared legend from one of the diff plots
-shared_legend <- get_legend(all_diff_plots[[1]] +
-                            guides(fill = guide_legend(
-                              direction = "horizontal",
-                              ncol = 7,
-                              label.position = "bottom",
-                              keywidth = unit(1.5, "cm"),
-                              keyheight = unit(1.2, "cm"),
-                              override.aes = list(size = 1)
-                            )) +
-                            theme(
-                              legend.text = element_text(size = 26),
-                              legend.spacing.x = unit(0.4, "cm"),
-                              legend.key.size = unit(1.2, "cm")
-                            ))
+# Extract the legend as a grob with larger size
+legend_grob <- get_legend(all_diff_plots[[1]] +
+  guides(fill = guide_legend(
+    direction = "vertical",
+    ncol = 1,
+    label.position = "right",
+    keywidth = unit(3.5, "cm"),
+    keyheight = unit(4.5, "cm"),
+    override.aes = list(size = 1)
+  )) +
+  theme(
+    legend.text = element_text(size = 32),
+    legend.spacing.y = unit(1.2, "cm")
+  ))
 
-# Combine plots with spacing and legend below using ggarrange
+# Convert legend grob to ggplot object
+legend_plot <- as_ggplot(legend_grob)
+
+# Combine plots in a 2x2 grid: 3 maps + legend plot in bottom-right
 combined_plot <- ggarrange(all_diff_plots_nolegend[[1]],
                             all_diff_plots_nolegend[[2]],
                             all_diff_plots_nolegend[[3]],
-                            shared_legend,
-                            ncol = 1, nrow = 4,
-                            heights = c(1, 1, 1, 0.15),
+                            legend_plot,
+                            ncol = 2, nrow = 2,
                             labels = c("a", "b", "c", ""),
                             font.label = list(size = 40, face = "bold"))
 
-# Save plot (single-column layout with legend below)
-out_file <- file.path(plot_dir, "new_stacked_3scenarios_differences_new_vertical.png")
+# Save plot (2x2 layout with legend in bottom-right)
+out_file <- file.path(plot_dir, "new_stacked_3scenarios_differences_2x2.png")
 ggsave(out_file, combined_plot,
-       width = 24, height = 42, dpi = 300, bg = "white")
+       width = 48, height = 42, dpi = 300, bg = "white")
 
-cat(sprintf("✅ Created single-column panel figure: %s\n", out_file))
+cat(sprintf("Created single-column panel figure: %s\n", out_file))
 
 # Clean up
 rm(r_current_suit, all_diff_plots, combined_plot)
 gc()
 
+
+cat("All plots saved in:", plot_dir, "\n")
+
+
 cat("\n========================================\n")
 cat("✅ All plots saved in:", plot_dir, "\n")
 cat("========================================\n")
+
