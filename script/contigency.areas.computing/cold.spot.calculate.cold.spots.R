@@ -7,7 +7,7 @@
 #
 # Cold spot definition:
 #   Areas meeting ALL of the following criteria:
-#   - High invasion suitability (above threshold)
+#   - Low NIS suitability (above threshold)
 #   - Sufficient distance from existing MPAs
 #   - Sufficient distance from offshore wind farms
 #   - Sufficient distance from coastline
