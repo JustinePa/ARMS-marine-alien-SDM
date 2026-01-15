@@ -3,7 +3,7 @@
 **Supplementary code and data processing scripts for:**
 
 > [Paper Title]  
-> [Authors]  
+> Justine Pagnier, Tobias Andermann, Mats Gunnar Andersson, Matthias Obst
 > [Journal], [Year]  
 > DOI: [link]
 
