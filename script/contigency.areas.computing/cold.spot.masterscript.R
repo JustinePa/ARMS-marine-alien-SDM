@@ -132,8 +132,6 @@ coast.limit <- 7            # Minimum distance from coast (km)
 suitability.range.max <- 0.6  # Upper limit for color scale (0-1)
 suitability.limit <- 0.2      # Minimum suitability threshold
 
-area.limit <- 250             # Minimum cold spot area (km²) - filters small patches
-
 # Output files
 Coldspot.layer <- "Coldspot.layer.test.rda"
 MPA.polygon.layer <- "MPA.polygon.layer.rda.test"
@@ -143,7 +141,6 @@ cat("  Suitability: >=", suitability.limit, "\n")
 cat("  Distance from coast: >=", coast.limit, "km\n")
 cat("  Distance from MPAs: >=", MPA.limit, "km\n")
 cat("  Distance from OWFs: >=", OWF.limit, "km\n\n")
-cat("  Minimum cold spot area: >=", area.limit, "km²\n\n")  # ADD THIS LINE
 
 Args2 <- c(
   suitability.rasterlayer.crop.layer,
@@ -207,7 +204,6 @@ Args3 <- c(
   ylim3[1], ylim3[2],
   plotname,
   plotwidth, plotheight, plotres,
-  area.limit
 )
 
 Mystring <- paste("Rscript cold.spot.make.plots.R", paste(Args3, collapse = " "))
