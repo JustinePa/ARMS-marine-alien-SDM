@@ -1,16 +1,14 @@
-# Cold Spot Analysis for Marine Non-Indigenous Species Management
+# Cold Spot Analysis for Ballast Water Contigency Areas
 
-A spatial analysis workflow for identifying priority areas ("cold spots") for marine biosecurity interventions in European waters. This analysis integrates species distribution models, marine protected areas, offshore wind farms, and coastal proximity to identify strategic locations for enhanced monitoring and management of marine non-indigenous species (NIS).
+A spatial analysis workflow for identifying areas that can be used as Ballast Water Contigency Areas ("cold spots", i.e. areas with less risks of alien establishment and spread). This analysis integrates species distribution models, marine protected areas, offshore wind farms, and coastal proximity to identify strategic locations.
 
 ## Overview
 
-This workflow processes ensemble habitat suitability predictions for 70 marine non-indigenous species across European seas and identifies areas that:
-- Have high invasion suitability
+This workflow processes ensemble habitat suitability predictions for 69 marine non-indigenous species across European seas and identifies areas that:
+- Low alien suitability
 - Are located away from existing Marine Protected Areas (MPAs)
 - Are distant from Offshore Wind Farms (OWFs) 
 - Are sufficiently far from the coastline
-
-These "cold spots" represent priority areas where management interventions could be most effective for preventing or controlling marine biological invasions.
 
 ## Author & Contact
 
@@ -36,7 +34,7 @@ cold_spot_masterscript.R          # Main orchestration script
 **Purpose:** Prepare and process spatial data layers for analysis
 
 **Inputs:**
-- Ensemble suitability predictions (GeoTIFF, 0-1 scale, mean across 70 NIS species)
+- Ensemble suitability predictions (GeoTIFF, 0-1 scale, mean across 69 NIS species)
 - Marine Protected Areas database (GeoTIFF raster)
 - Offshore Wind Farm polygons (shapefile)
 - European country boundaries (shapefile)
@@ -67,7 +65,7 @@ cold_spot_masterscript.R          # Main orchestration script
 
 **Cold Spot Definition:**  
 Areas are classified as cold spots when they meet ALL of the following criteria:
-- **High invasion suitability:** Above user-defined threshold (default: ≥ 0.2)
+- **Low cummulative alien suitability:** Above user-defined threshold (default: ≤ 0.2)
 - **Minimum distance from MPAs:** Greater than threshold (default: ≥ 7 km)
 - **Minimum distance from OWFs:** Greater than threshold (default: ≥ 7 km)
 - **Minimum distance from coast:** Greater than threshold (default: ≥ 7 km)
@@ -105,21 +103,9 @@ Areas are classified as cold spots when they meet ALL of the following criteria:
 - Cold spot polygons highlighted
 - Simplified visualization for clarity
 
-**Technical Features:**
-- Vector PDF output for high-quality journal submission
-- Colorblind-friendly palette (Blues gradient + distinct accent colors)
-- Coordinated reference system (WGS 84, EPSG:4326)
-- "Dummy points" technique to force all legend categories to display
-- Adjustable plot extent (can be subset of full study area)
-
 **Outputs:**
 - Two-panel publication figure (PDF, vector format)
 - Alternative PNG output available (modify script for raster format)
-
-**Figure Specifications (configurable):**
-- Width: 18 cm (Nature Communications 2-column maximum)
-- Height: 9 cm
-- Resolution: 400 dpi (for PNG option)
 
 ### Required Data Layers
 
