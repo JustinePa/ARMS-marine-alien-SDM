@@ -59,6 +59,27 @@ Scripts for creating all publication figures from modeling results.
 
 ---
 
+### 4. Ballast Water Contingency Areas
+Scripts for identifying potential Ballast Water Contingency Areas ("cold spots"), having less risks of aliens establishment and spead.
+- **Location:** `script/contingency.areas.computing/`
+- **Master script:** `cold_spot_masterscript.R`
+- **Workflow:** Three-step pipeline (data preparation → cold spot calculation → figure generation)
+
+**Key outputs:**
+- Cold spot polygons for strategic monitoring deployment
+- Two-panel publication figure (ensemble suitability + identified cold spots)
+- Distance rasters from MPAs, offshore wind farms, and coastline
+
+**Cold spot criteria:**
+- High invasion suitability (≥0.2)
+- Minimum 7 km from existing Marine Protected Areas
+- Minimum 7 km from offshore wind farms
+- Minimum 7 km from coastline
+
+See `contingency.areas.computing/README.md` for detailed documentation.
+
+---
+
 ## Requirements
 
 ### R Packages
