@@ -2,7 +2,8 @@
 
 ## Overview
 
-These scripts generate publication-ready figures from processed species distribution modeling results, including model performance analyses, habitat suitability maps, and climate change projections.
+These scripts generate figures from processed species distribution modeling results, including model performance analyses, habitat suitability maps, and climate change projections.
+For Figure 7, see [here](https://github.com/JustinePa/ARMS-marine-alien-SDM/tree/main/script/contigency.areas.computing).
 
 ## Scripts
 
