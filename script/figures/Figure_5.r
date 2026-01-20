@@ -278,8 +278,3 @@ gc()
 
 cat("All plots saved in:", plot_dir, "\n")
 
-
-cat("\n========================================\n")
-cat("✅ All plots saved in:", plot_dir, "\n")
-cat("========================================\n")
-
