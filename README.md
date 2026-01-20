@@ -2,7 +2,7 @@
 
 **Supplementary code and data processing scripts for:**
 
-> [Paper Title]  
+> "The role of genetic observatory networks in the detection and forecasting of marine non-indigenous species"
 > Justine Pagnier, Tobias Andermann, Mats Gunnar Andersson, Matthias Obst
 > [Journal], [Year]  
 > DOI: [link]
