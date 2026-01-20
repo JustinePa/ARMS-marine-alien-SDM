@@ -1,6 +1,6 @@
-# Marine Alien Species Distribution Modeling - Supplementary Code
+# Marine Alien Species Distribution Modeling - Scripts
 
-**Supplementary code and data processing scripts for:**
+**Scripts used for data collection, modelling, analysis and visualisation in:**
 
 > "The role of genetic observatory networks in the detection and forecasting of marine non-indigenous species"
 >
