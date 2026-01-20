@@ -13,7 +13,7 @@
 
 ## Overview
 
-This repository contains all code used to process data and generate figures for our study on marine invasive species distribution modeling across European waters. We integrate environmental DNA (eDNA) metabarcoding data from genetic observatory networks with species distribution models to predict current and future habitat suitability under climate change scenarios.
+This repository contains all code used to process data and generate figures for our study on marine invasive species distribution modeling across European waters. We integrate metabarcoding data from genetic observatory networks with species distribution models to predict current and future habitat suitability under climate change scenarios.
 
 ---
 
