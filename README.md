@@ -17,11 +17,11 @@ This repository contains all code used to process data and generate figures for 
 
 ---
 
-## Repository Structure
+## Repository structure
 
 The repository is organized into three main components:
 
-### 1. Environmental Data Processing
+### 1. Environmental data processing
 Scripts for downloading and preparing Bio-ORACLE environmental layers for species distribution modeling.
 
 - **Location:** `script/pre-modelling/environmental data/`
@@ -33,7 +33,7 @@ Scripts for downloading and preparing Bio-ORACLE environmental layers for specie
 
 ---
 
-### 2. Occurrence Data Processing
+### 2. Occurrence data processing
 Scripts for downloading, merging, and spatially thinning species occurrence records from GBIF and OBIS.
 
 - **Location:** `script/pre-modelling/occurrence data/`
@@ -45,7 +45,7 @@ Scripts for downloading, merging, and spatially thinning species occurrence reco
 
 ---
 
-### 3. Figure Generation
+### 3. Figure generation
 Scripts for creating all publication figures from modeling results.
 
 - **Location:** `script/figures/`
@@ -100,7 +100,7 @@ install.packages(c("terra", "ggplot2", "sf", "rnaturalearth", "dplyr",
 install.packages("biomod2")
 ```
 
-### Data Sources
+### Data sources
 - **Environmental data:** Bio-ORACLE v3.0 (Assis et al., 2024)
 - **Occurrence data:** GBIF and OBIS
 - **Ecoregions:** MEOW (Marine Ecoregions of the World)
