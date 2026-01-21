@@ -36,7 +36,7 @@ cat("Created output directories\n\n")
 
 # Time constraints for baseline period
 constraints <- list(
-  time = c("2010-01-01T00:00:00Z", "2010-01-01T00:00:00Z")
+  time = c("2001-01-01T00:00:00Z", "2010-01-01T00:00:00Z")
   # Note: This represents the 2000-2018/2020 baseline period
 )
 
