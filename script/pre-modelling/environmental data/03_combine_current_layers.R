@@ -15,7 +15,7 @@
 # Institution: University of Gothenburg
 # Contact: justine.pagnier@gu.se
 # Date Created: 2025-08-19
-# Last Modified: 2025-01-065
+# Last Modified: 2026-01-065
 ################################################################################
 
 library(terra)
