@@ -24,7 +24,7 @@
 # Institution: University of Gothenburg
 # Contact: justine.pagnier@gu.se
 # Date Created: 2025-08-19
-# Last Modified: 2025-01-06
+# Last Modified: 2026-01-06
 ################################################################################
 
 
@@ -166,5 +166,6 @@ for (i in seq_along(species_list$Species)) {
   write.csv(gbif_curated, outfile, row.names = FALSE)
   cat("Saved", nrow(gbif_curated), "occurrences to:", basename(outfile), "\n\n")
 }
+
 
 cat("Files saved to:", output_dir, "\n")
