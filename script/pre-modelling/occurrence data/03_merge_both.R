@@ -16,7 +16,7 @@
 # Institution: University of Gothenburg
 # Contact: justine.pagnier@gu.se
 # Date Created: 2025-08-19
-# Last Modified: 2025-01-06
+# Last Modified: 2026-01-06
 ################################################################################
 
 library(dplyr)
@@ -162,4 +162,5 @@ summary_file <- file.path(output_dir, paste0("merged_summary_", output_date, ".c
 write.csv(merged_summary, summary_file, row.names = FALSE)
 
 cat("Summary saved to:", basename(summary_file), "\n")
+
 cat("\nNext step: Run 04_thinning.R\n")
