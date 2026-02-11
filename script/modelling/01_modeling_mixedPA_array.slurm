@@ -3,11 +3,11 @@
 #SBATCH --time=01:00:00
 #SBATCH --cpus-per-task=4
 #SBATCH --partition=main
-#SBATCH -A 					# project ID
+#SBATCH -A 					# EDIT: add your project ID here
 #SBATCH --ntasks=1
-#SBATCH --array=1-83			# Adapt according to species number
+#SBATCH --array=1-83			# EDIT: Adapt according to species number
 
-# --- Load modules ---
+# --- Load modules (CAREFUL: This is specific to Dardel cluster (KTH)---
 module purge
 module load PDCOLD/23.12
 module load cpeGNU/23.12
@@ -17,14 +17,14 @@ module load proj/9.1.1
 module load geos/3.9.1
 
 # --- Set R library path ---
-export R_LIBS_USER= 			# add your custom library
+export R_LIBS_USER= 			# EDIT: add your custom library
 export LD_LIBRARY_PATH=/opt/cray/pe/R/4.4.1/lib64/R/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/pdc/software/eb/software/proj/9.1.1/lib64:/pdc/software/23.12/eb/software/gdal/3.9.0-cpeGNU-23.12/lib64:$LD_LIBRARY_PATH
 export PATH=/pdc/software/23.12/eb/software/gdal/3.9.0-cpeGNU-23.12/bin:$PATH
 export RSTUDIO=0
 
 # --- Go to working directory ---
-cd 							# add path to your current directory
+cd 							# EDIT: add path to your current directory
 
 # --- pick species from the list by task id ---
 species_list="species_list.txt"
@@ -55,7 +55,8 @@ mkdir -p "$OUTDIR"
 
 echo ">>> Running ${SPECIES} | MIX (disk+random) | ENV=${ENV} | CV=${CV_STRATEGY} | dmin=${PA_DIST_MIN} m | dmax=${PA_DIST_MAX} m"
 
-
+# Launch R script
+# CV repetitions (1 = single run of k-fold)
 Rscript modeling_mixedPA.R \
   "$SPECIES" \
   "$ALGORITHMS" \
