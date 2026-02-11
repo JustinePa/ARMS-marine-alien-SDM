@@ -25,6 +25,7 @@ export RSTUDIO=0
 
 # --- Go to working directory ---
 cd 							# EDIT: add path to your current directory
+mkdir -p logs
 
 # --- pick species from the list by task id ---
 species_list="species_list.txt"
@@ -41,6 +42,8 @@ exec >"$LOGDIR/${SPECIES_SAFE}_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}.out" 2>"$L
 # --- Parameters ---
 ALGORITHMS="RF,MAXNET,MARS,GAM,XGBOOST"
 CV_STRATEGY="kfold"
+CV_NB_REP=1
+CV_PERC=""
 CV_K=5
 N_CORES=4
 ENV="myExpl_shelf.tif"
@@ -63,8 +66,8 @@ Rscript modeling_mixedPA.R \
   "$PA_DIST_MIN" \
   "$PA_DIST_MAX" \
   "$CV_STRATEGY" \
-  "1" \
-  "" \
+  "$CV_NB_REP" \
+  "$CV_PERC" \
   "$CV_K" \
   "$N_CORES" \
   "$ENV" \
