@@ -19,10 +19,12 @@ algorithms   <- strsplit(args[2], ",")[[1]]
 pa_dist_min  <- if (args[3] == "NULL" | args[3] == "") NULL else as.numeric(args[3])
 pa_dist_max  <- if (args[4] == "NULL" | args[4] == "") NULL else as.numeric(args[4])
 cv_strategy  <- args[5]
-cv_nb_rep    <- as.numeric(args[6])
+cv_nb_rep <- as.numeric(args[6])
+if (is.na(cv_nb_rep)) stop("CV_nb_rep must be a number, got: ", args[6])
 cv_perc      <- if (args[7] == "NULL" | args[7] == "") NULL else as.numeric(args[7])
 cv_k         <- if (args[8] == "NULL" | args[8] == "") NULL else as.numeric(args[8])
 n_cores      <- as.numeric(args[9])
+if (is.na(n_cores)) stop("n_cores must be a number, got: ", args[9])
 env_file     <- args[10]
 outdir       <- args[11]
 
@@ -49,14 +51,6 @@ myExpl <- rast(env_file)
 
 # === Screen presences against the env stack (CRS + extent + NA) ===
 pv <- terra::vect(myRespXY, geom = c("X_WGS84","Y_WGS84"), crs = "EPSG:4326")
-
-# Reproject presences to raster CRS if needed
-#if (!terra::compareGeom(myExpl, pv, stopOnError = FALSE)) {
-# pv <- terra::project(pv, terra::crs(myExpl))
-#  xy_r <- as.data.frame(terra::geom(pv)[, c("x","y")])
-#  names(xy_r) <- c("X_WGS84","Y_WGS84")
-#  myRespXY <- xy_r
-#}
 
 # (A) Which raster cell does each presence hit? (use extract with cells=TRUE)
 ext_cells <- terra::extract(myExpl[[1]], pv, cells = TRUE)  # columns: ID, cell, <layer values>
@@ -223,13 +217,11 @@ build_bm_format_mix <- function(nb_rep = 3, mix_ratio = 1/2, dedup = TRUE, verbo
     expl.var      = myExpl,
     PA.strategy   = "user.defined",
     PA.user.table = newPA,
-    filter.raster = FALSE
+    filter.raster = FALSE  # Not activated as occurrences were already thinned with d=10km
   )
   logf(">> Done.")
   return(fmt)
 }
-
-
 
 myBiomodData.PA <- build_bm_format_mix()
 
