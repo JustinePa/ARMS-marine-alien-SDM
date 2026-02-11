@@ -88,24 +88,6 @@ if (n_kept <= 100) {
 cat(">>> Using PAs/rep:", PA.nb.absences, "\n")
 
 
-
-
-
-
-# ========== Calculation of the number of pseudoabsences ==========
-#n_presences <- sum(myResp == 1)
-#if (n_presences < 10) stop(paste("Species", myRespName, "has fewer than 10 presences."))
-
-# Number of pseudo-absences
-#if (n_presences <= 100) {
-#  PA.nb.absences <- min(n_presences * 3, 500)
-#} else {
-#  PA.nb.absences <- n_presences * 3
-#}
-#cat(">>> Presences:", n_presences, " | PAs/rep:", PA.nb.absences, "\n")
-
-
-
 # ========== Mixed PA builder (Version 1 style) ==========
 set.seed(123)
 
