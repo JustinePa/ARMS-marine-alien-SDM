@@ -5,7 +5,7 @@
 > "The role of genetic observatory networks in the detection and forecasting of marine non-indigenous species"
 >
 > Justine Pagnier, Tobias Andermann, Mats Gunnar Andersson, Matthias Obst
-> 
+>
 > [Journal], [Year]  
 > DOI preprint: [[link]](https://doi.org/10.21203/rs.3.rs-8702791/v1)
 
@@ -13,100 +13,148 @@
 
 ## Overview
 
-This repository contains all code used to process data and generate figures for our study on marine invasive species distribution modelling across European waters. We integrate metabarcoding data from genetic observatory networks with species distribution models to predict current and future habitat suitability under climate change scenarios.
+This repository contains all code used to process data and generate figures for our study on marine non-indigenous species (NIS) distribution modelling across European waters. We integrate metabarcoding data from genetic observatory networks (ARMS-MBON) with ensemble species distribution models to predict current and future habitat suitability for 69 NIS under three climate change scenarios (SSP1-2.6, SSP2-4.5, SSP5-8.5) through 2100.
 
 ---
 
 ## Repository structure
 
-The repository is organized into three main components:
+```
+script/
+├── pre-modelling/
+│   ├── environmental data/     # Bio-ORACLE data download and preparation (8 scripts)
+│   └── occurrence data/        # GBIF/OBIS download, merge, and thinning (4 scripts)
+├── modelling/                  # biomod2 ensemble SDM pipeline (4 scripts + SLURM)
+├── post-modelling processing/  # SDM output processing and ecoregion analysis (1 script)
+├── figures/                    # Publication figure generation (6 scripts)
+└── contingency.areas.computing/ # Ballast water contingency area analysis (4 scripts)
+```
 
-### 1. Environmental data processing
-Scripts for downloading and preparing Bio-ORACLE environmental layers for species distribution modeling.
+Each subdirectory contains its own `README.md` with detailed instructions.
+
+---
+
+## Pipelines
+
+### 1. Environmental data
+Downloads Bio-ORACLE v3.0 environmental layers, calculates distance-to-coast,
+applies focal interpolation to fill coastal gaps, runs VIF analysis for variable
+selection, and produces final raster stacks for current conditions and three
+future scenarios. Runs locally on PC.
 
 - **Location:** `script/pre-modelling/environmental data/`
-- **Scripts:** 01-08 (sequential pipeline)
+- **Scripts:** `01` through `08` (sequential)
+- **Key outputs:** `myExpl_final.tif`, `myExpl_shelf.tif`, future scenario stacks
 
-**Key outputs:**
-- Current conditions (2000-2020): `myExpl_final.tif`, `myExpl_shelf.tif`
-- Future projections (2100): SSP 1-2.6, 2-4.5, 5-8.5 scenarios
-
----
-
-### 2. Occurrence data processing
-Scripts for downloading, merging, and spatially thinning species occurrence records from GBIF and OBIS.
+### 2. Occurrence data
+Downloads presence records from GBIF and OBIS, merges and deduplicates across
+sources, and applies 10 km spatial thinning. Scripts 01–03 run locally; script
+04 runs on the HPC cluster as a SLURM array job.
 
 - **Location:** `script/pre-modelling/occurrence data/`
-- **Scripts:** 01-04 (sequential pipeline)
+- **Scripts:** `01` through `04` (sequential)
+- **Key outputs:** Spatially thinned occurrence CSVs per species
 
-**Key outputs:**
-- Merged occurrence data with duplicates removed
-- Spatially thinned occurrences (10 km threshold)
+### 3. Species distribution modelling
+Runs biomod2 ensemble models, projects current and future habitat suitability,
+and produces EMwmean and EMca outputs per species. Runs on HPC cluster (Dardel,
+PDC KTH) using SLURM array jobs.
 
----
+- **Location:** `script/modelling/`
+- **Scripts:** `01` through `04` (sequential, each with a `.slurm` companion)
+- **Key outputs:** Per-species suitability rasters for all scenarios
 
-### 3. Figure generation
-Scripts for creating all publication figures from modeling results.
+> ℹ️ The modelling pipeline is not designed to be run locally. Download
+> processed model outputs from [[this repository](https://figshare.com/s/ab27e1dcaee11ba59e88)] to reproduce figures without re-running
+> the models.
+
+### 4. Post-modelling processing
+Applies land and ecoregion masking, normalises outputs, computes species stacks,
+delta maps, and ecoregion-scale statistics. Runs locally on PC using outputs
+downloaded from the HPC cluster.
+
+- **Location:** `script/post-modelling processing/`
+- **Script:** `post-mod processing.R`
+- **Key outputs:** Normalised rasters, stacked suitability maps, delta maps,
+  `ecoregion_mean_delta.csv`
+
+### 5. Figures
+Produces all six manuscript figures from post-modelling outputs. All scripts
+run locally on PC.
 
 - **Location:** `script/figures/`
-- **Scripts:** Figure_1.r through Figure_6.R
+- **Scripts:** `figure_01.R` through `figure_06.R`
+- **Key outputs:** `Figure_1.pdf` through `Figure_6.png` in `figures/`
 
-**Figures:**
-1. Model performance analysis
-2. Species-level habitat suitability maps
-3. Suitability changes under climate change
-4. Invasion hotspots (cumulative suitability)
-5. Future changes across scenarios
-6. Ecoregion-level analysis
+### 6. Ballast water contingency areas
+Identifies cold spots — areas of low NIS introduction risk outside existing
+protected areas and offshore infrastructure — for ballast water management
+prioritisation. Runs locally on PC via a master script orchestrating three
+sequential subscripts.
 
----
-
-### 4. Ballast Water Contingency Areas
-Scripts for identifying potential Ballast Water Contingency Areas ("cold spots"), having less risks of aliens establishment and spead.
 - **Location:** `script/contingency.areas.computing/`
-- **Master script:** `cold_spot_masterscript.R`
-- **Workflow:** Three-step pipeline (data preparation → cold spot calculation → figure generation)
-
-**Key outputs:**
-- Cold spot polygons for strategic monitoring deployment
-- Two-panel publication figure (ensemble suitability + identified cold spots)
-- Distance rasters from MPAs, offshore wind farms, and coastline
-
-**Cold spot criteria:**
-- High invasion suitability (≥0.2)
-- Minimum 7 km from existing Marine Protected Areas
-- Minimum 7 km from offshore wind farms
-- Minimum 7 km from coastline
-
-See `contingency.areas.computing/README.md` for detailed documentation.
+- **Master script:** `cold.spot.masterscript.R`
+- **Key outputs:** Cold spot polygons, two-panel publication figure
 
 ---
 
 ## Requirements
 
-### R Packages
+### R version
+R 4.4.1
+
+### Packages
 ```r
 # Environmental data
-install.packages(c("terra", "sf", "usdm", "rnaturalearth", "rnaturalearthdata", "biooracler"))
+install.packages(c("terra", "sf", "usdm", "rnaturalearth", 
+                   "rnaturalearthdata", "biooracler"))
 
 # Occurrence data
-install.packages(c("rgbif", "robis", "spThin", "dplyr", "tidyverse", "lubridate"))
+install.packages(c("rgbif", "robis", "spThin", "dplyr", "lubridate"))
 
-# Figures
-install.packages(c("terra", "ggplot2", "sf", "rnaturalearth", "dplyr", 
-                   "tidyr", "patchwork", "ggpubr", "grid", "gridExtra", "reshape2"))
-
-# Species distribution modeling (not included in this repo)
+# Modelling (HPC only)
 install.packages("biomod2")
+
+# Post-modelling and figures
+install.packages(c("terra", "ggplot2", "sf", "rnaturalearth", "dplyr",
+                   "tidyr", "tidyverse", "patchwork", "ggpubr", "scales",
+                   "readr", "grid", "RColorBrewer"))
+
+# Contingency areas
+install.packages(c("terra", "raster", "sf", "dplyr", "stars", "fBasics"))
 ```
 
 ### Data sources
-- **Environmental data:** Bio-ORACLE v3.0 (Assis et al., 2024)
-- **Occurrence data:** GBIF and OBIS
-- **Ecoregions:** MEOW (Marine Ecoregions of the World)
+- **Environmental layers:** Bio-ORACLE v3.0 (Assis et al., 2024) —
+  downloaded automatically by the environmental data pipeline
+- **Occurrence data:** GBIF and OBIS — downloaded automatically by the
+  occurrence data pipeline (GBIF account required)
+- **Ecoregions:** MEOW shapefile — available from
+  [Marine Regions](https://www.marineregions.org)
+- **Processed outputs:** Archived at [DOI] — download to skip modelling
+  and run figures directly
 
+---
 
+## Reproducing the analysis
 
+**To reproduce everything from scratch:**
+1. Environmental data pipeline (local)
+2. Occurrence data pipeline (local → HPC)
+3. Modelling pipeline (HPC)
+4. Transfer outputs from HPC to local machine
+5. Post-modelling processing (local)
+6. Figures (local)
+7. Contingency areas (local)
+
+**To reproduce figures only:**
+1. Download processed outputs from [DOI]
+2. Run `script/figures/figure_01.R` through `figure_06.R`
+3. Run `script/contingency.areas.computing/cold.spot.masterscript.R`
+
+Set `base_dir` at the top of each script to your local directory.
+
+---
 
 ## Citation
 
@@ -129,7 +177,6 @@ If you use code from this repository, please cite:
 ## Contact
 
 **Justine Pagnier**  
-PhD Student, Marine Biology  
-University of Gothenburg  
-Email: justine.pagnier@gu.se
+PhD Student, Marine Sciences  
+University of Gothenburg
 
