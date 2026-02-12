@@ -69,7 +69,7 @@ files_to_process <- list(
 for (scenario in names(files_to_process)) {
   info <- files_to_process[[scenario]]
   
-  cat("│ Processing:", info$description, rep(" ", 35 - nchar(info$description)), "│\n")
+  cat("\n--- Processing:", info$description, "---\n")
   
   # Check if input file exists
   if (!file.exists(info$input)) {
@@ -98,7 +98,8 @@ for (scenario in names(files_to_process)) {
   cat("Creating continental shelf mask...\n")
   cat("      Threshold:", depth_thresh, "m\n")
   
-  # Shelf mask: TRUE where depth >= -200m (shallower than 200m)
+  # Bio-ORACLE bathymetry values are negative (e.g. -50m depth = -50)
+  # shelf_mask is TRUE where depth >= -200 (i.e. shallower than 200m)
   shelf_mask <- bathy >= depth_thresh
   
   # Count cells
@@ -110,6 +111,7 @@ for (scenario in names(files_to_process)) {
   cat("      Shelf cells:", shelf_cells, "(", shelf_percent, "%)\n")
   
   # Apply mask to all layers
+  # maskvalues = 0 sets to NA all cells where shelf_mask is FALSE (deep ocean)
   cat("Applying shelf mask to all layers...\n")
   myExpl_shelf <- mask(myExpl, shelf_mask, maskvalues = 0)
   
