@@ -23,7 +23,7 @@
 # Institution: SVA - Swedish Veterinary Institute
 # Contact: gunnar.andersson@sva.se
 # Date Created: November 2025
-# Last Modified: 2025-01-13
+# Last Modified: 2026-01-13
 ################################################################################
 
 library(terra)
@@ -33,6 +33,9 @@ library(fBasics)
 library(maptools)
 library(dplyr)
 library(stars)
+
+# EDIT: set to the directory containing the cold spot scripts and Datalayers/
+setwd("path/to/your/working/directory")
 
 ################################################################################
 # CONFIGURATION: Input Data Layers
@@ -109,6 +112,7 @@ Args <- c(
 
 Mystring <- paste("Rscript cold.spot.prepare.data.R", paste(Args, collapse = " "))
 system(Mystring)
+if (exit_code != 0) stop("Step 1 failed with exit code ", exit_code)
 
 cat("\nStep 1 complete\n\n")
 
@@ -161,6 +165,7 @@ Args2 <- c(
 
 Mystring <- paste("Rscript cold.spot.calculate.cold.spots.R", paste(Args2, collapse = " "))
 system(Mystring)
+if (exit_code != 0) stop("Step 2 failed with exit code ", exit_code)
 
 cat("\nStep 2 complete\n\n")
 
@@ -203,11 +208,12 @@ Args3 <- c(
   xlim3[1], xlim3[2],
   ylim3[1], ylim3[2],
   plotname,
-  plotwidth, plotheight, plotres,
+  plotwidth, plotheight, plotres
 )
 
 Mystring <- paste("Rscript cold.spot.make.plots.R", paste(Args3, collapse = " "))
 system(Mystring)
+if (exit_code != 0) stop("Step 3 failed with exit code ", exit_code)
 
 cat("\nStep 3 complete\n\n")
 
