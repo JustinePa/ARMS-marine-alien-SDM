@@ -32,7 +32,7 @@
 # Institution: University of Gothenburg
 # Contact: justine.pagnier@gu.se
 # Date Created: 2025-08-19
-# Last Modified: 2026-01-06
+# Last Modified: 2026-02-12
 ################################################################################
 
 library(spThin)
@@ -47,15 +47,16 @@ task_id <- as.numeric(args[1])
 # Using task_id ensures each species has a unique but reproducible seed
 set.seed(1000 + task_id)
 
-indir <- ".../data/merged_occurrences_0825"
-outdir <- ".../data/occurrences_thinned_0825"
+indir <- file.path("occurrences_0825", "occurrences_merged")
+outdir <- "occurrences_thinned_0825"
 if (!dir.exists(outdir)) {
   dir.create(outdir, recursive = TRUE)
   cat("Created output directory:", outdir, "\n")
 }
 
 # List merged files
-files <- list.files(indir, pattern = "_merged_2025-08-19\\.csv$", full.names = TRUE)
+output_date <- "2025-08-19"  # IMPORTANT: must match date used in scripts 01 and 02
+files <- list.files(indir, pattern = paste0("_merged_", output_date, "\\.csv$"), full.names = TRUE)
 if (length(files) == 0) {
   stop("No merged files found in ", indir)
 }
@@ -103,7 +104,7 @@ if (nrow(pres) < 2) {
     long.col = "Longitude",
     spec.col = "Species",
     thin.par = 10,     # thinning distance in km
-    reps = 1,
+    reps = 1, # single rep sufficient given reproducible seed (set.seed above)
     locs.thinned.list.return = TRUE,
     write.files = FALSE,
     verbose = FALSE
@@ -142,7 +143,7 @@ summary_row <- tibble(
   pres_before = nrow(pres),
   pres_after  = nrow(thinned),
   pres_removed = nrow(pres) - nrow(thinned),
-  pres_retained_pct = round(100 * nrow(thinned) / nrow(pres), 1),
+  pres_retained_pct = if (nrow(pres) > 0) round(100 * nrow(thinned) / nrow(pres), 1) else NA,
   absences    = sum(dat$occurrenceStatus == 0),
   total_before = nrow(dat),
   total_after  = nrow(final)
