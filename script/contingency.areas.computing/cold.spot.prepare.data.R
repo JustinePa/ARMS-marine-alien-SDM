@@ -59,6 +59,7 @@ args <- commandArgs(trailingOnly = TRUE)
 # For RStudio debugging: args <- Args
 
 cat("Received", length(args), "arguments\n")
+if (length(args) < 24) stop("Expected 24 arguments, received ", length(args))
 cat(paste("Argument", seq_along(args), "=", args, collapse = "\n"), "\n\n")
 
 # Input data paths
@@ -293,6 +294,8 @@ if (!file.exists(coast.rasterlayer_dist.layer)) {
   coast.raster <- mask
   coast.raster[!is.na(mask)] <- NA
   coast.raster[is.na(mask)] <- 0
+  # Distance from coast = distance from land pixels into the ocean
+  # Land cells set to 0 (source), ocean cells set to NA (target)
   
   coast.raster_dist <- terra::distance(coast.raster)
   coast.raster_dist <- coast.raster_dist * mask
