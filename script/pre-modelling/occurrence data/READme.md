@@ -135,8 +135,7 @@ for (i in 1:69) {
 > ⚠️ The `output_date` variable in this script must match the date used
 > in scripts 01–03. For the published analysis this is `"2025-08-19"`.
 
-After script 04 completes on the cluster, transfer the thinned files
-back to your local machine for use in post-modelling: occurrences_thinned_0825/
+After script 04 completes on the cluster, keep the thinned files in this folder in the cluster: occurrences_thinned_0825/. The 01_modelling_mixedPA.R will fetch occurrence data directly there.
 ---
 
 ### Troubleshooting
