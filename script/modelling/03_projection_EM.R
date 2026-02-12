@@ -6,23 +6,19 @@ library(tidyterra)
 library(biomod2)
 
 # ========== Memory-Safe Settings ==========
-dir.create("/cfs/klemming/home/p/pagnier/tmp", showWarnings = FALSE)       # create tmp dir if missing
-terraOptions(memfrac = 0.5, tempdir = "/cfs/klemming/home/p/pagnier/tmp")  # safe temp dir and memory cap
+tmp_dir <- file.path(getwd(), "tmp")
+dir.create(tmp_dir, showWarnings = FALSE)
+terraOptions(memfrac = 0.5, tempdir = tmp_dir)
 
 # ========== Parse Command Line Args ==========
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) == 0) stop("? Please provide arguments.")
 myRespName <- args[1]
 modeling_id <- args[2]
-n_cores <- args[3]
+n_cores <- as.integer(args[3])
 
-# ========== Set working directory ==========
-setwd("/cfs/klemming/home/p/pagnier/biomod_pipeline/0.test_method")
 
 # ========== Load Ensemble Model ==========
-# ensemble_path <- file.path("outputs", paste0("ensemble_", myRespName, ".rds"))
-# if (!file.exists(ensemble_path)) stop(paste("? Ensemble file not found at:", ensemble_path))
-# myBiomodEM <- readRDS(ensemble_path)
 
 model_dir <- myRespName
 model_file <- file.path(model_dir, paste(myRespName, modeling_id, "ensemble.models.out", sep = "."))
@@ -54,11 +50,11 @@ avail <- biomod2::get_built_models(myBiomodEM)
 keep_em <- avail[grepl("(_EMwmeanByTSS|_EMcvByTSS|EMcaByTSS)(_|$)", avail)]
 
 if (length(keep_em) == 0) {
-  cat("No EMwmeanByTSS/EMcvByTSS/EMcaByTSS flavours found — skipping.\n")
+  cat("No EMwmeanByTSS/EMcvByTSS/EMcaByTSS found for", my RespName, "— skipping.\n")
   quit(status = 0)
 }
 
-cat("Forecasting these ensemble flavours:\n"); print(keep_em)
+cat("Forecasting these ensemble types:\n"); print(keep_em)
 
 myBiomodEMProj <- BIOMOD_EnsembleForecasting(
   bm.em         = myBiomodEM,
@@ -69,3 +65,4 @@ myBiomodEMProj <- BIOMOD_EnsembleForecasting(
   do.stack      = FALSE
 
 )
+
