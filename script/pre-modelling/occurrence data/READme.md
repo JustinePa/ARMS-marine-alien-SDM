@@ -97,6 +97,9 @@ has data from only one source.
 > the date in the filenames produced by scripts 01 and 02. For the
 > published analysis this is `"2025-08-19"`.
 
+After running script 03 locally, transfer the merged occurrence files
+to your HPC working directory before running script 04.
+
 ---
 
 ### Script 04: Spatial thinning
@@ -132,6 +135,8 @@ for (i in 1:69) {
 > ⚠️ The `output_date` variable in this script must match the date used
 > in scripts 01–03. For the published analysis this is `"2025-08-19"`.
 
+After script 04 completes on the cluster, transfer the thinned files
+back to your local machine for use in post-modelling: occurrences_thinned_0825/
 ---
 
 ### Troubleshooting
