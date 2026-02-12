@@ -30,7 +30,9 @@ library(terra)
 
 cat("CREATING CONTINENTAL SHELF SUBSETS\n")
 
-setwd("C:/biomod2_git/test")
+# Run this script from your project root directory, e.g.:
+# setwd("/path/to/your/project")
+# All outputs will be written relative to that directory.
 
 # Define continental shelf depth threshold
 depth_thresh <- -200  # 0 to -200m depth
