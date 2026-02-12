@@ -30,7 +30,9 @@ library(rnaturalearthdata)
 
 cat("PROCESSING FUTURE ENVIRONMENTAL LAYERS\n")
 
-setwd("C:/biomod2_git/test")
+# Run this script from your project root directory, e.g.:
+# setwd("/path/to/your/project")
+# All outputs will be written relative to that directory.
 
 # Configuration
 future_dir <- "layers_future"
@@ -51,7 +53,7 @@ cat("   Static variables:", length(static_vars), "(from myExpl_final.tif)\n\n")
 # Load static layers from current conditions
 cat(" Loading static layers from current conditions...\n")
 if (!file.exists("myExpl_final.tif")) {
-  stop("myExpl_final.tif not found. Please run Scripts 1-5 first.")
+  stop("myExpl_final.tif not found. Please run Scripts 1-6 first.")
 }
 
 current_final <- rast("myExpl_final.tif")
@@ -81,9 +83,9 @@ fill_coastal_gaps <- function(layer) {
 
 # Process each SSP scenario
 for (ssp in ssp_scenarios) {
-  cat("\n╔═══════════════════════════════════════════════════╗\n")
-  cat("║  Processing scenario:", ssp, "                        \n")
-  cat("╚═══════════════════════════════════════════════════╝\n\n")
+  cat("\n===================================================\n")
+  cat("  Processing scenario:", ssp, "\n")
+  cat("===================================================\n\n"))
   
   ssp_year <- paste0(ssp, "_", year)
   ssp_dir <- file.path(future_dir, ssp_year)
@@ -195,6 +197,9 @@ for (ssp in ssp_scenarios) {
   writeRaster(layers_final, final_file, overwrite = TRUE,
               filetype = "GTiff", gdal = c("TILED=YES", "COMPRESS=LZW", "PREDICTOR=2"))
   cat("Saved:", final_file, "\n")
+
+  # Note: shelf subsets (ssp126_shelf_2100.tif etc.) are created in Script 08
+# These full-extent files are intermediate outputs not used directly by modelling scripts
   
   # Summary
   cat("\n───────────────────────────────────────────────\n")
