@@ -6,8 +6,11 @@
 library(terra)
 library(sf)
 library(tidyverse)
-library(reshape2)
 library(patchwork) # For combining plots
+
+base_dir  <- "path/to/your/working/directory"  # EDIT: set once here
+out_dir   <- file.path(base_dir, "figures")
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 # ----------------------------------------------------------------------------
 # 1. LOAD DATA
@@ -16,10 +19,19 @@ library(patchwork) # For combining plots
 cat("\n=== LOADING DATA ===\n")
 
 # Habitat suitability for all scenarios
-hs_current <- rast("C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/current_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_current.tif")
-hs_future_126 <- rast("C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/ssp126_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp126.tif")
-hs_future_245 <- rast("C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/ssp245_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp245.tif")
-hs_future_585 <- rast("C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/ssp585_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp585.tif")
+current_path <- file.path(base_dir, "current_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_current.tif")
+ssp126_path <- file.path(base_dir, "ssp126_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp126.tif")
+ssp245_path <- file.path(base_dir, "ssp245_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp245.tif")
+ssp585_path <- file.path(base_dir, "ssp585_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp585.tif")
+
+raster_paths <- c(current_path, ssp126_path, ssp245_path, ssp585_path)
+missing <- raster_paths[!file.exists(raster_paths)]
+if (length(missing) > 0) stop("Missing rasters:\n", paste(missing, collapse = "\n"))
+
+hs_current <- rast(current_path)
+hs_future_126 <- rast(ssp126_path)
+hs_future_245 <- rast(ssp245_path)
+hs_future_585 <- rast(ssp585_path)
 
 # Calculate changes
 hs_change_126 <- hs_future_126 - hs_current
@@ -27,7 +39,8 @@ hs_change_245 <- hs_future_245 - hs_current
 hs_change_585 <- hs_future_585 - hs_current
 
 # Load MEOW ecoregions
-meow <- vect("C:/biomod2_git/MEOW_FINAL/MEOW/meow_ecos.shp")
+meow_path <- file.path(base_dir, "MEOW/meow_ecos.shp")
+meow <- vect(meow_path)
 meow_sf <- st_as_sf(meow)
 
 # Define study regions
@@ -304,7 +317,7 @@ p_combined <- p_pct + p_abs +
 
 # Save combined plot
 ggsave(
-  "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/ecoregion_analysis/new_ecoregion_grouped_bars_dual_metrics.png",
+  file.path(out_dir, "Figure_6.png"),
   p_combined,
   width = 16,
   height = 10,
@@ -337,7 +350,7 @@ comparison_table <- scenario_table %>%
 
 write_csv(
   comparison_table,
-  "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/ecoregion_analysis/ecoregion_dual_metrics_table.csv"
+  file.path(base_dir, "ecoregion_dual_metrics_table.csv")
 )
 
 # Print summary statistics
@@ -372,13 +385,8 @@ print(summary_dual)
 
 write_csv(
   summary_dual,
-  "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/ecoregion_analysis/ecoregion_dual_metrics_summary.csv"
+  file.path(base_dir, "ecoregion_dual_metrics_summary.csv")
 )
 
 cat("\n✓ All analysis complete!\n")
-cat("  - Created 3 visualization versions:\n")
-cat("    1. Side-by-side comparison (dual_metrics.png)\n")
-cat("    2. Vertical stacked comparison (dual_metrics_vertical.png)\n")
-cat("    3. Faceted comparison (dual_metrics_faceted.png)\n")
-cat("  - Saved comparison tables\n")
-cat("  - Saved summary statistics\n")
+
