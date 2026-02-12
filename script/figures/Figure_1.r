@@ -9,9 +9,22 @@ library(dplyr)
 library(tidyr)
 library(patchwork)
 
+# individual_models_all_diagnostics.csv is produced by aggregating the
+# per-species evaluation CSVs from the modelling pipeline:
+# eval/{SpeciesName}_mixed_myExpl_shelf_kfold/eval_{SpeciesName}_{ModelingID}.csv
+# In this step, ROC (from biomod2) is renamed AUC
+# The file can be found in the figures/ repo
+
+base_dir   <- "path/to/your/working/directory"
+input_file <- file.path(base_dir, "plots_occ_vs_perf/individual_models_all_diagnostics.csv")
+output_dir <- file.path(base_dir, "plots_occ_vs_perf")
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
 # ========== Load Pre-processed Data ==========
 # Load the individual models diagnostics
-results_all <- read.csv("C:/biomod2_git/post_modelisation/plots_occ_vs_perf/individual_models_all_diagnostics.csv")
+if (!file.exists(input_file)) stop("Input file not found: ", input_file, " See in the Github repo")
+required_cols <- c("n_occ", "TSS", "AUC") 
+results_all <- read.csv(input_file)
 
 # Remove rows with missing data
 results_plot <- results_all %>%
@@ -113,7 +126,7 @@ combined_figure <- p1 + p2 +
   plot_layout(ncol = 2, widths = c(1.2, 1))
 
 # Save as PDF (vector format) - double column width (180mm = ~7.09 inches)
-ggsave("C:/biomod2_git/post_modelisation/plots_occ_vs_perf/Figure_1.pdf",
+ggsave(file.path(output_dir, "Figure_1.pdf"),
        combined_figure, 
        width = 180, 
        height = 90, 
@@ -121,17 +134,18 @@ ggsave("C:/biomod2_git/post_modelisation/plots_occ_vs_perf/Figure_1.pdf",
        device = cairo_pdf)
 
 # Also save high-res version for preview (optional)
-ggsave("C:/biomod2_git/post_modelisation/plots_occ_vs_perf/Figure_1_preview.png",
+ggsave(file.path(output_dir, "Figure_1_preview.png"),
        combined_figure, 
        width = 180, 
        height = 90, 
        units = "mm",
        dpi = 300)
 
-ggsave("C:/biomod2_git/post_modelisation/plots_occ_vs_perf/Figure_1.svg",
+ggsave(file.path(output_dir, "Figure_1.svg"),
        combined_figure, 
        width = 180, 
        height = 90, 
        units = "mm",
        device = "svg")
+
 
