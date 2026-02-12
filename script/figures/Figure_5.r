@@ -6,7 +6,7 @@ library(dplyr)
 library(patchwork)
 library(ggpubr)
 
-base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX"
+base_dir <- "path/to/your/working/directory"  # EDIT: set once here
 
 # European extent
 xlim_eu <- c(-28, 70)
@@ -19,25 +19,27 @@ world <- ne_countries(scale = "medium", returnclass = "sf")
 future_scenarios <- c("ssp126", "ssp245", "ssp585")
 
 # Create output directory
-plot_dir <- file.path(base_dir, "stacked_current_and_differences_plots")
-dir.create(plot_dir, recursive = TRUE, showWarnings = FALSE)
+plot_dir <- file.path(base_dir, "figures")
 
 # STEP 1: Load current stacked suitability
 current_suit_path <- file.path(base_dir, "current_proj/masked/alien/stacked_norm01",
                                "new_stack_mean_norm01_current.tif")
+if (!file.exists(current_suit_path)) stop("Current suitability stack not found: ", current_suit_path)
 r_current_suit <- rast(current_suit_path)
 
-# STEP 2: Skip current suitability map - only showing changes
-
-# STEP 3: Calculate differences for all scenarios and check ranges
+# STEP 2: Calculate differences for all scenarios and check ranges
 all_diff_ranges <- list()
 
-for (i in 1:length(future_scenarios)) {
+for (i in seq_along(future_scenarios)) {
   scenario_name <- future_scenarios[i]
 
   # Load future stacked suitability
   future_suit_path <- file.path(base_dir, paste0(scenario_name, "_proj/masked/alien/stacked_norm01"),
                                 paste0("new_stack_mean_norm01_", scenario_name, ".tif"))
+  if (!file.exists(future_suit_path)) {
+  cat("Future suitability stack not found for", scenario_name, "— skipping\n")
+  next
+  }
   r_future_suit <- rast(future_suit_path)
 
   # Calculate difference: future - current
@@ -79,7 +81,7 @@ all_maxs <- sapply(all_diff_ranges, function(x) x$max)
 cat(sprintf("\nOVERALL RANGE: %7.4f to %7.4f\n", min(all_mins), max(all_maxs)))
 
 
-# STEP 4: Create Panels 2-4 - Difference maps with categories
+# STEP 3: Create Panels 2-4 - Difference maps with categories
 all_diff_plots <- list()
 all_category_stats <- list()
 
@@ -228,7 +230,7 @@ for (scenario_name in names(all_category_stats)) {
 }
 
 
-# STEP 5: Combine 3 change panels in a 2x2 matrix with legend in bottom-right
+# STEP 4: Combine 3 change panels in a 2x2 matrix with legend in bottom-right
 cat("\nCreating 2x2 matrix layout with 3 change maps and legend in bottom-right...\n")
 
 # Remove legends from first two diff plots
@@ -265,7 +267,7 @@ combined_plot <- ggarrange(all_diff_plots_nolegend[[1]],
                             font.label = list(size = 40, face = "bold"))
 
 # Save plot (2x2 layout with legend in bottom-right)
-out_file <- file.path(plot_dir, "new_stacked_3scenarios_differences_2x2.png")
+out_file <- file.path(plot_dir, "Figure_5.png")
 ggsave(out_file, combined_plot,
        width = 48, height = 42, dpi = 300, bg = "white")
 
@@ -277,4 +279,5 @@ gc()
 
 
 cat("All plots saved in:", plot_dir, "\n")
+
 
