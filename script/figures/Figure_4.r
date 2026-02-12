@@ -2,9 +2,10 @@ library(terra)
 library(ggplot2)
 library(sf)
 library(rnaturalearth)
+library(ggspatial)
 library(dplyr)
 
-base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX"
+base_dir <- "path/to/your/working/directory"  # EDIT: set once here
 scenario_name <- "current"
 
 # European extent
@@ -17,6 +18,8 @@ world <- ne_countries(scale = "medium", returnclass = "sf")
 # Load stacked normalized suitability
 stack_suit_path <- file.path(base_dir, paste0(scenario_name, "_proj/masked/alien/stacked_norm01"),
                              paste0("new_stack_mean_norm01_", scenario_name, ".tif"))
+
+if (!file.exists(stack_suit_path)) stop("Stacked suitability raster not found: ", stack_suit_path)
 
 r_stack_suit <- rast(stack_suit_path)
 
@@ -54,7 +57,6 @@ cat("Unique categories in data:\n")
 print(unique(df_discrete$cat_label))
 
 # Create publication-ready plot for NIS management priorities
-library(ggspatial)  # For scale bar and north arrow
 
 p <- ggplot() +
   geom_raster(data = df_discrete, aes(x = x, y = y, fill = cat_label)) +
@@ -102,11 +104,16 @@ p <- ggplot() +
   )
 
 # Save plot
-out_dir <- file.path(base_dir, "discrete_maps")
+out_dir <- file.path(base_dir, "figures")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 # Save high-resolution publication version
-ggsave(file.path(out_dir, "suitability_discrete_current_publication_new_mod.png"),
+ggsave(file.path(out_dir, "Figure 4.png"),
        p, width = 12, height = 10, dpi = 600, bg = "white")
 
-cat("✅ Discrete map created!\n")
+ggsave(file.path(out_dir, "Figure_4.pdf"),
+       p, width = 12, height = 10,
+       device = cairo_pdf)
+
+cat(" Discrete map created!\n")
+
