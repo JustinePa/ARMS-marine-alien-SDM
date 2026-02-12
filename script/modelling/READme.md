@@ -15,7 +15,7 @@ All steps are designed for parallel execution on HPC clusters using SLURM job ar
 
 ## Scripts
 
-### 1. Individual Species Modeling
+## Step 1: Individual Species Modeling
 This step fits species distribution models for each species independently and saves model evaluation metrics. It is the most computationally intensive step and is designed to run as a SLURM job array on an HPC cluster.
 - **01_modeling_mixedPA.R** - Main modeling script with mixed pseudo-absence strategy
 - **01_modeling_mixedPA_array.slurm** - SLURM array job for parallel processing
@@ -99,12 +99,82 @@ input to Step 2 (ensemble modelling).
   with occurrence count and available cores.
 
 
-### 2. Ensemble Modeling
-- **02_ensemble.R** - Create ensemble models from individual algorithms
-- **02_ensemble_array.slurm** - SLURM array job
+## Step 2: Ensemble modelling
 
-**Ensemble methods:** EMwmean (weighted mean), EMcv (coefficient of variation), EMca (committee averaging)  
-**Selection thresholds:** TSS ≥ 0.6, ROC ≥ 0.85
+Scripts: `02_ensemble.R`, `02_ensemble_array.slurm`
+
+This step combines the individual algorithm outputs from Step 1 into ensemble
+models for each species, and saves ensemble evaluation metrics. It must be run
+after Step 1 has completed successfully for all species.
+
+### Prerequisites
+
+- [ ] Step 1 completed — individual model `.out` files must exist for all species
+- [ ] `species_list_ensemble.txt` in your working directory — this list contains
+      only species that successfully produced individual models in Step 1
+      (i.e. species that passed the 10-presence threshold and did not time out).
+      It may be shorter than `species_list.txt`.
+- [ ] R 4.4.1 with the following packages installed: `biomod2`, `terra`, `dplyr`
+
+### Setup
+
+Open `02_ensemble_array.slurm` and edit the following fields:
+```bash
+#SBATCH -A                     # your project/allocation ID
+#SBATCH --array=1-69           # adjust to match the number of lines
+                               # in species_list_ensemble.txt (may differ from step 1)
+MODELING_DATE="2025-09-24"     # ⚠️ must exactly match the value used in step 1
+export R_LIBS_USER=            # path to your R library
+cd                             # path to your working directory
+```
+
+> ⚠️ **Critical: `MODELING_ID` must match Step 1 exactly.**
+> The `MODELING_ID` is constructed from `MODELING_DATE`, the CV strategy, and
+> the environment file name — the same components used in Step 1 to name model
+> output files. If there is any mismatch, the R script will fail to locate the
+> model files and exit with "Model file not found". If you kept the published
+> value (`2025-09-24`) in Step 1, keep it here too.
+
+### Run
+```bash
+sbatch 02_ensemble_array.slurm
+```
+
+Each array task processes one species. Logs are written to
+`1.logs/EM/ensemble_{SpeciesName}_{ModelingID}.out/.err`.
+
+### Outputs
+
+For each species, ensemble model objects are saved to the species directory,
+and evaluation metrics are written to `EM_mix50/`:
+```
+EM_mix50/
+└── full_eval_EM_{SpeciesName}_{ModelingID}.csv
+```
+
+Each CSV contains TSS and ROC evaluation scores for the three ensemble methods
+produced at this step: weighted mean (EMwmean), coefficient of variation (EMcv),
+and committee averaging (EMca). Only individual models passing the selection
+thresholds (TSS ≥ 0.6, ROC-AUC ≥ 0.85) are included in the ensemble.
+
+### Key modelling choices
+
+| Parameter | Value | Reason |
+|---|---|---|
+| Ensemble methods | EMwmean, EMcv, EMca | Suitability, uncertainty, and model agreement |
+| Model selection | TSS ≥ 0.6, ROC ≥ 0.85 | Retains only well-performing individual models |
+| Weighting | Proportional to TSS | Higher-performing models contribute more |
+
+### Troubleshooting
+
+- **"Model file not found":** The `MODELING_ID` in this script does not match
+  what was used in Step 1. Check that `MODELING_DATE`, CV strategy, and
+  environment file name are identical across both scripts.
+- **Array index out of range:** The number of species in
+  `species_list_ensemble.txt` is smaller than `--array=1-N`. Set `N` to
+  `wc -l < species_list_ensemble.txt`.
+- **Species skipped in Step 1:** If a species timed out or failed in Step 1,
+  remove it from `species_list_ensemble.txt` before running this step.
 
 ### 3. Current Projections
 - **03_projection_EM.R** - Project ensemble models to current environmental conditions
