@@ -1,18 +1,16 @@
 # ========== Load Libraries ==========
 library(biomod2)
-library(PRROC)
 library(dplyr)
 library(terra)
-library(tidyr)
 
 # ========== Parse Command Line Args ==========
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) == 0) stop("Please provide arguments: <species> <modeling_id>")
+if (length(args) < 2) stop("Usage: ensemble.R <species> <modeling_id>")
 myRespName  <- args[1]
 modeling_id <- args[2]
 
 # ========== Directories ==========
-base_dir   <- "/cfs/klemming/home/p/pagnier/biomod_pipeline/0.test_method"
+base_dir <- "."  # working directory, set via cd in the SLURM script
 output_dir <- file.path(base_dir, "EM_mix50")
 
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -25,7 +23,7 @@ if (!file.exists(model_file)) stop("Model file not found: ", model_file)
 loaded_name <- load(model_file)
 myBiomodModelOut <- get(loaded_name)
 
-cores <- as.integer(Sys.getenv("SLURM_CPUS_PER_TASK", "1"))
+cores <- as.integer(Sys.getenv("SLURM_CPUS_PER_TASK", "1"))  # automatically obtained from the SLURM script
 
 # ========== Ensemble Modeling ==========
 myBiomodEM <- BIOMOD_EnsembleModeling(
@@ -35,9 +33,9 @@ myBiomodEM <- BIOMOD_EnsembleModeling(
   em.algo       = c("EMwmean", "EMcv", "EMca"),
   EMwmean.decay = "proportional",
   metric.select = c("TSS","ROC"),
-  metric.select.thresh = c(0.6, 0.85),  
+  metric.select.thresh = c(0.6, 0.85),   # minimum TSS and ROC-AUC to include individual models in ensemble
   metric.eval   = c("TSS","ROC"),
-  var.import    = 0,
+  var.import    = 0,  # can be activated if needed, here it isn't to reduce computation needed
   nb.cpu        = cores
 )
 
@@ -48,3 +46,4 @@ write.csv(em_eval,
           row.names = FALSE)
 
 cat("✅ Done with ensemble for", myRespName, "\n")
+
