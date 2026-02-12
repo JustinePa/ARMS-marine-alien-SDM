@@ -36,8 +36,18 @@ library(tidyterra)
 library(patchwork)
 library(sf)
 
-
-setwd("C:/biomod2_git")
+# EDIT: set this to the local directory where you downloaded your 
+# biomod2 projection outputs from the HPC cluster.
+# Expected structure:
+#   base_dir/
+#   ├── current_proj/        # outputs from 03_projection_EM.R
+#   │   └── {SpeciesName}/proj_CurrentEM_{SpeciesName}_{ModelingID}/
+#   ├── ssp126_proj/         # outputs from 04_projection_EM_future.R
+#   ├── ssp245_proj/
+#   ├── ssp585_proj/
+#   └── env_data/
+#       └── myExpl_shelf.tif  # copy from your HPC working directory
+base_dir  <- "path/to/your/working/directory"  # EDIT: set once here
 
 # -----------------------------
 # 1) LAND MASK: remove land cells from EMwmean (0 in biomod's outputs)
@@ -46,43 +56,46 @@ setwd("C:/biomod2_git")
 # -----------------------------
 
 # ---- Define a land mask from any env stack that matches your projections' grid
-env_ref   <- rast("env_data/myExpl_shelf.tif")
+env_path  <- file.path(base_dir, "env_data/myExpl_shelf.tif")
+env_ref   <- rast(env_path)
 landmask  <- is.na(env_ref["distance_to_land"])  # TRUE on land, FALSE at sea
 
-# ---- Paths
-proj_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/current_proj" # change here for different scenario
-masked_proj_dir  <- file.path(proj_dir, "masked")
-dir.create(masked_proj_dir, recursive = TRUE, showWarnings = FALSE)
-
-# Grab all EMwmeanByTSS rasters (current projections)
-emwmean_files <- list.files(
-  proj_dir,
-  pattern = "EMwmeanByTSS.*\\.(tif|tiff)$",
-  full.names = TRUE,
-  ignore.case = TRUE
-)
-
-if (length(emwmean_files) == 0) {
-  cat("⚠️ No EMwmeanByTSS rasters found in:", proj_dir, "\n")
-}
-
-for (f in emwmean_files) {
-  base <- basename(f)
-  species_code <- sub("_EMwmeanByTSS.*$", "", file_path_sans_ext(base))  # no-spaces code
-  cat("🔄 Land-masking:", species_code, "\n")
+for (sc in c("current", "ssp126", "ssp245", "ssp585")) {
   
-  out_path <- file.path(masked_proj_dir, paste0("MASKED_", base))
+  cat("\n--- Land-masking:", sc, "---\n")
   
-  r <- rast(f)
-  # Align to landmask grid if needed
-  if (!compareGeom(r, landmask, stopOnError = FALSE)) {
-    r <- project(r, landmask, method = "near")  # or "bilinear" for continuous
+  proj_dir        <- file.path(base_dir, paste0(sc, "_proj"))
+  masked_proj_dir <- file.path(proj_dir, "masked")
+  dir.create(masked_proj_dir, recursive = TRUE, showWarnings = FALSE)
+  
+  emwmean_files <- list.files(
+    proj_dir,
+    pattern = "EMwmeanByTSS.*\\.(tif|tiff)$",
+    full.names = TRUE,
+    recursive = TRUE,
+    ignore.case = TRUE
+  )
+  
+  if (length(emwmean_files) == 0) {
+    cat(" No EMwmeanByTSS rasters found in:", proj_dir, "\n")
+    next
   }
-  # Mask where landmask == TRUE (i.e., land)
-  r_masked <- mask(r, landmask, maskvalues = TRUE)
   
-  writeRaster(r_masked, out_path, filetype = "GTiff", overwrite = TRUE)
-  cat("✅ Saved:", out_path, "\n")
+  for (f in emwmean_files) {
+    base         <- basename(f)
+    species_code <- sub("_EMwmeanByTSS.*$", "", file_path_sans_ext(base))
+    out_path     <- file.path(masked_proj_dir, paste0("MASKED_", base))
+    
+    cat("🔄 Land-masking:", species_code, "\n")
+    
+    r <- rast(f)
+    if (!compareGeom(r, landmask, stopOnError = FALSE)) {
+      r <- project(r, landmask, method = "near")
+    }
+    r_masked <- mask(r, landmask, maskvalues = TRUE)
+    writeRaster(r_masked, out_path, filetype = "GTiff", overwrite = TRUE)
+    cat(" Saved:", out_path, "\n")
+  }
 }
 
 # -----------------------------
@@ -90,11 +103,12 @@ for (f in emwmean_files) {
 # outputs: ALIENMASK_MASKED_species_....tif
 # in folder: .../<sc>_proj/masked/alien
 # -----------------------------
+meow_path <- file.path(base_dir, "MEOW/meow_ecos.shp") # shapefile downloaded from www.resourcewatch.org
+meow <- vect(meow_path)       
 
-meow <- vect("C:/biomod2_git/MEOW_FINAL/MEOW/meow_ecos.shp")        # download from www.resourcewatch.org
-
-alien_regions <- read.csv(                                          # csv with one column 'species' and one 'ecoregions', cf. Suppl. File 5
-  "C:/biomod2_git/post_modelisation/alien_species_regions.csv",
+alien_regions_path <- file.path(base_dir, "post_modelisation/alien_species_regions.csv") # csv with one column 'species' and one 'ecoregions', cf. Suppl. File 5
+alien_regions <- read.csv(                                          
+  alien_regions_path,
   stringsAsFactors = FALSE
 )
 
@@ -191,7 +205,7 @@ files <- list.files(
   ignore.case = TRUE
 )
 if (!length(files)) {
-  cat("⚠️ No EMwmeanByTSS rasters found in:", masked_in_dir, "\n")
+  cat(" No EMwmeanByTSS rasters found in:", masked_in_dir, "\n")
 }
 
 for (f in files) {
@@ -202,24 +216,24 @@ for (f in files) {
                            file_path_sans_ext(base))
   
   if (!species_no_spaces %in% names(species_key)) {
-    cat("  ⚠️ Unknown species code in filename:", base, "\n")
+    cat("  Unknown species code in filename:", base, "\n")
     next
   }
   species_name <- species_key[[species_no_spaces]]
-  cat("  🔄 MEOW-masking:", species_name, "\n")
+  cat("  MEOW-masking:", species_name, "\n")
   
   out_file <- file.path(masked_out_dir, paste0("ALIENMASK_", base))
   
   r_suit <- tryCatch(rast(f), error = function(e) NULL)
   if (is.null(r_suit)) {
-    cat("    ⚠️ Failed to read raster:", base, "\n")
+    cat("  Failed to read raster:", base, "\n")
     next
   }
   
   # Regions for this species from CSV
   rows <- alien_regions[alien_regions$species == species_name, , drop = FALSE]
   if (!nrow(rows)) {
-    cat("    ⚠️ No alien-region row for species in CSV:", species_name, "\n")
+    cat(" No alien-region row for species in CSV:", species_name, "\n")
     next
   }
   
@@ -233,7 +247,7 @@ for (f in files) {
   # Subset MEOW by ECOREGION
   meow_mask_vec <- subset(meow, meow$ECOREGION %in% regions)
   if (!nrow(meow_mask_vec)) {
-    cat("    ⚠️ No matching MEOW ecoregions for species:", species_name, "\n")
+    cat(" No matching MEOW ecoregions for species:", species_name, "\n")
     next
   }
   
@@ -244,7 +258,7 @@ for (f in files) {
   r_suit_alien <- mask(r_suit, mask_r)
   
   writeRaster(r_suit_alien, out_file, overwrite = TRUE)
-  cat("    ✅ Saved:", out_file, "\n")
+  cat(" Saved:", out_file, "\n")
 }
 
 
@@ -740,4 +754,5 @@ for (sc in setdiff(scenarios, "current")) {
 }
 
 ecoregion_delta_df <- bind_rows(ecoregion_delta_results)
+
 write.csv(ecoregion_delta_df, file.path(out_dir, "ecoregion_mean_delta.csv"), row.names = FALSE)
