@@ -5,8 +5,9 @@ library(rnaturalearth)
 library(dplyr)
 library(patchwork)
 
-emcv_base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/EMcv"
-base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX"
+base_dir      <- "path/to/your/working/directory"  # EDIT: set once here
+plot_dir      <- file.path(base_dir, "figures")
+dir.create(plot_dir, recursive = TRUE, showWarnings = FALSE)
 
 # European extent
 xlim_eu <- c(-28, 70)
@@ -23,10 +24,6 @@ species_list <- list(
 
 # Suitability threshold to define "suitable"
 suitability_threshold <- 0.5
-
-# Create output directory
-plot_dir <- file.path(emcv_base_dir, "species_plots_change_with_transition")
-dir.create(plot_dir, recursive = TRUE, showWarnings = FALSE)
 
 # We need current and ssp245 scenarios
 scenarios_needed <- c("current", "ssp245")
@@ -49,31 +46,20 @@ for (spp_idx in seq_along(species_list)) {
     cat(sprintf("Loading data for: %s\n", scenario_name))
 
     # Paths
-    masked_emcv_dir <- file.path(emcv_base_dir, scenario_name, "masked_emcv_alien")
     masked_suit_dir <- file.path(base_dir, paste0(scenario_name, "_proj/masked/alien/normalized"))
 
     # Find files
-    emcv_file <- list.files(masked_emcv_dir,
-                            pattern = paste0("ALIENMASK_", species_code, "_EMcvByTSS.*\\.tif$"),
-                            full.names = TRUE)
 
     suit_file <- list.files(masked_suit_dir,
                             pattern = paste0("ALIENMASK_MASKED_", species_code, ".*norm01\\.tif$"),
                             full.names = TRUE)
 
-    if (length(emcv_file) == 0 || length(suit_file) == 0) {
-      stop(paste("  ⚠️ Files not found for", scenario_name))
-    }
-
     # Read rasters
     r_suit <- rast(suit_file[1])
-    r_emcv <- rast(emcv_file[1])
-    r_cv <- r_emcv / 100
 
     # Store rasters
     rasters[[scenario_name]] <- list(
-      suit = r_suit,
-      cv = r_cv
+      suit = r_suit
     )
   }
 
