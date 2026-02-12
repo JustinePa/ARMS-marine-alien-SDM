@@ -22,7 +22,7 @@
 # Institution: University of Gothenburg
 # Contact: justine.pagnier@gu.se
 # Date Created: 2025-08-19
-# Last Modified: 2026-01-06
+# Last Modified: 2026-02-12
 ################################################################################
 
 # Load required packages
@@ -147,4 +147,5 @@ cat("www.obis.org. Accessed:", format(Sys.Date(), "%Y-%m-%d"), "\n")
 
 
 citation_text <- "OBIS. (accessed YYYY-MM-DD) Ocean Biodiversity Information System. Intergovernmental Oceanographic Commission of UNESCO. www.obis.org"
+
 
