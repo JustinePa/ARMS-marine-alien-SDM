@@ -17,7 +17,7 @@
 # Institution: University of Gothenburg
 # Contact: justine.pagnier@gu.se
 # Date Created: 2025-08-19
-# Last Modified: 2025-01-06
+# Last Modified: 2025-02-12
 ################################################################################
 
 library(terra)
@@ -27,7 +27,9 @@ library(rnaturalearthdata)
 
 cat("FOCAL INTERPOLATION - Filling Coastal Gaps\n")
 
-setwd("C:/biomod2_git/test")
+# Run this script from your project root directory, e.g.:
+# setwd("/path/to/your/project")
+# All outputs will be written relative to that directory.
 
 # Load the stack to interpolate
 cat("Loading environmental layers...\n")
