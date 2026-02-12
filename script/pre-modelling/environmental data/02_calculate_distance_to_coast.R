@@ -22,10 +22,14 @@
 
 library(terra)
 
-setwd("")
+# Run this script from your project root directory, e.g.:
+# setwd("/path/to/your/project")
+# All outputs will be written relative to that directory.
 
-# Load bathymetry layer
-base <- rast("base.tif") # extracted from Bio-ORACLE terrain layer and renamed
+# Extract bathymetry from Bio-ORACLE terrain download
+terrain <- rast("layers/terrain/terrain_characteristics_bathymetry_mean.nc")
+base <- terrain[["bathymetry_mean"]]
+writeRaster(base, "base.tif", overwrite = TRUE)
 
 # Step 1: Create ocean mask
 # Ocean cells where bathymetry exists (non-NA) = 1
@@ -52,6 +56,9 @@ coast_dist_agg <- terra::distance(ocean_mask_agg)
 # Step 4: Disaggregate back to original resolution
 cat("Disaggregating back to original resolution...\n")
 coast_dist <- disagg(coast_dist_agg, fact = 4)
+if (!compareGeom(coast_dist, base, stopOnError = FALSE)) {
+  coast_dist <- resample(coast_dist, base, method = "bilinear")
+}
 
 # Step 5: Mask to original ocean extent
 # Ensure distance layer only covers ocean cells
