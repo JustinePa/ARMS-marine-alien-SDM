@@ -194,71 +194,71 @@ species_list <- c("AcartiaAcanthacartiatonsa",
 # Map: no-spaces code -> canonical with-spaces (matches alien_regions$species)
 species_key <- setNames(species_list, gsub(" ", "", species_list, fixed = TRUE))
 
-masked_in_dir  <- file.path(proj_dir, "masked")        
-masked_out_dir <- file.path(masked_in_dir, "alien")            
-dir.create(masked_out_dir, recursive = TRUE, showWarnings = FALSE)
-
-files <- list.files(
-  masked_in_dir,
-  pattern = "_EMwmeanByTSS_.*\\.(tif|tiff)$",  # scenario NOT in filename anymore
-  full.names = TRUE,
-  ignore.case = TRUE
-)
-if (!length(files)) {
-  cat(" No EMwmeanByTSS rasters found in:", masked_in_dir, "\n")
-}
-
-for (f in files) {
-  base <- basename(f)
+for (sc in c("current", "ssp126", "ssp245", "ssp585")) {
   
-  # Extract species code (handles optional 'MASKED_' prefix)
-  species_no_spaces <- sub("^(MASKED_)?([^_]+)_EMwmeanByTSS.*$", "\\2",
-                           file_path_sans_ext(base))
+  cat("\n--- MEOW-masking:", sc, "---\n")
   
-  if (!species_no_spaces %in% names(species_key)) {
-    cat("  Unknown species code in filename:", base, "\n")
-    next
-  }
-  species_name <- species_key[[species_no_spaces]]
-  cat("  MEOW-masking:", species_name, "\n")
+  masked_in_dir  <- file.path(base_dir, paste0(sc, "_proj"), "masked")
+  masked_out_dir <- file.path(masked_in_dir, "alien")
+  dir.create(masked_out_dir, recursive = TRUE, showWarnings = FALSE)
   
-  out_file <- file.path(masked_out_dir, paste0("ALIENMASK_", base))
+  files <- list.files(
+    masked_in_dir,
+    pattern = "_EMwmeanByTSS_.*\\.(tif|tiff)$",
+    full.names = TRUE,
+    ignore.case = TRUE
+  )
   
-  r_suit <- tryCatch(rast(f), error = function(e) NULL)
-  if (is.null(r_suit)) {
-    cat("  Failed to read raster:", base, "\n")
+  if (!length(files)) {
+    cat("  No EMwmeanByTSS rasters found in:", masked_in_dir, "\n")
     next
   }
   
-  # Regions for this species from CSV
-  rows <- alien_regions[alien_regions$species == species_name, , drop = FALSE]
-  if (!nrow(rows)) {
-    cat(" No alien-region row for species in CSV:", species_name, "\n")
-    next
+  for (f in files) {
+    base <- basename(f)
+    
+    species_no_spaces <- sub("^(MASKED_)?([^_]+)_EMwmeanByTSS.*$", "\\2",
+                             file_path_sans_ext(base))
+    
+    if (!species_no_spaces %in% names(species_key)) {
+      cat("  Unknown species code in filename:", base, "\n")
+      next
+    }
+    species_name <- species_key[[species_no_spaces]]
+    cat("  MEOW-masking:", species_name, "\n")
+    
+    out_file <- file.path(masked_out_dir, paste0("ALIENMASK_", base))
+    
+    r_suit <- tryCatch(rast(f), error = function(e) NULL)
+    if (is.null(r_suit)) {
+      cat("  Failed to read raster:", base, "\n")
+      next
+    }
+    
+    rows <- alien_regions[alien_regions$species == species_name, , drop = FALSE]
+    if (!nrow(rows)) {
+      cat("  No alien-region row for species in CSV:", species_name, "\n")
+      next
+    }
+    
+    regions_raw <- rows$ecoregions
+    regions <- unlist(strsplit(paste(regions_raw, collapse = ";"), "[;,]"))
+    regions <- trimws(regions)
+    regions <- regions[regions != ""]
+    if (any(tolower(regions) == "all_metro_europe")) regions <- all_metro_ecoregions
+    
+    meow_mask_vec <- subset(meow, meow$ECOREGION %in% regions)
+    if (!nrow(meow_mask_vec)) {
+      cat("  No matching MEOW ecoregions for species:", species_name, "\n")
+      next
+    }
+    
+    mask_r       <- rasterize(meow_mask_vec, r_suit, field = 1, background = NA)
+    r_suit_alien <- mask(r_suit, mask_r)
+    
+    writeRaster(r_suit_alien, out_file, overwrite = TRUE)
+    cat("  Saved:", out_file, "\n")
   }
-  
-  # Collect ecoregions (supports multiple rows and ; or , separators)
-  regions_raw <- rows$ecoregions
-  regions <- unlist(strsplit(paste(regions_raw, collapse = ";"), "[;,]"))
-  regions <- trimws(regions)
-  regions <- regions[regions != ""]
-  if (any(tolower(regions) == "all_metro_europe")) regions <- all_metro_ecoregions
-  
-  # Subset MEOW by ECOREGION
-  meow_mask_vec <- subset(meow, meow$ECOREGION %in% regions)
-  if (!nrow(meow_mask_vec)) {
-    cat(" No matching MEOW ecoregions for species:", species_name, "\n")
-    next
-  }
-  
-  # Rasterize MEOW subset to the *same grid* as the raster
-  mask_r <- rasterize(meow_mask_vec, r_suit, field = 1, background = NA)
-  
-  # Keep values only inside allowed ecoregions (mask keeps non-NA)
-  r_suit_alien <- mask(r_suit, mask_r)
-  
-  writeRaster(r_suit_alien, out_file, overwrite = TRUE)
-  cat(" Saved:", out_file, "\n")
 }
 
 
@@ -273,8 +273,7 @@ suppressPackageStartupMessages(library(terra))
 terraOptions(memfrac = 0.5)  # Use less RAM
 
 # ------------------ SETTINGS ------------------
-base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX"
-scenarios <- c("ssp126", "ssp245", "ssp585")
+scenarios <- c("current", "ssp126", "ssp245", "ssp585")
 theoretical_min <- 0
 theoretical_max <- 1000
 
@@ -345,7 +344,6 @@ cat("\n🎉 All done!\n")
 # FOR CERTAIN SPECIES ONLY
 suppressPackageStartupMessages(library(terra))
 terraOptions(memfrac = 0.6)
-base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX"
 scenarios <- c("current","ssp126", "ssp245", "ssp585")
 # Define which species to stack (leave as NULL to stack all)
 species_to_stack <- c("AcartiaAcanthacartiatonsa",
@@ -464,7 +462,6 @@ for (sc in scenarios) {
 # ===================================================
 
 # ------------------ SETTINGS -
-base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX"
 scenarios <- c("current", "ssp126", "ssp245", "ssp585")
 norm_sub  <- "normalized"
 
@@ -487,12 +484,6 @@ get_norm_files <- function(scen) {
   setNames(fs, keys)
 }
 
-write_and_msg <- function(r, path) {
-  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  writeRaster(r, path, overwrite = TRUE)
-  cat("✔ Wrote:", path, "\n")
-}
-
 # ------------------ LOAD STACKS --
 lst <- lapply(scenarios, get_norm_files)
 names(lst) <- scenarios
@@ -511,7 +502,6 @@ for (sc in scenarios[-1]) {
 }
 
 # ------------------ PER-SPECIES DELTAS --
-cur_stack <- stacks[["current"]]
 
 cur_files <- get_norm_files("current")
 
@@ -601,14 +591,22 @@ for (sc in setdiff(scenarios, "current")) {
 library(terra)
 
 # Directories
-emca_base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/EMca"
-output_base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/EMca/EMca_normalized"
+# EDIT: copy your EMca projection outputs from the HPC cluster into
+# base_dir/EMca/ before running this section.
+# Expected structure:
+#   base_dir/EMca/
+#   ├── current/     # EMca outputs from 03_projection_EM.R
+#   ├── ssp126/      # EMca outputs from 04_projection_EM_future.R
+#   ├── ssp245/
+#   └── ssp585/
+emca_base_dir   <- file.path(base_dir, "EMca")
+output_base_dir <- file.path(base_dir, "EMca", "EMca_normalized")
 
 # Create output directory
 dir.create(output_base_dir, recursive = TRUE, showWarnings = FALSE)
 
 # Scenarios to process
-scenarios <- c("current","ssp126","ssp245","ssp585")  # Add "ssp245" when available
+scenarios <- c("current","ssp126","ssp245","ssp585") 
 
 cat("\n=== Transforming EMca files from 0-1000 to 0-1 ===\n")
 
@@ -676,12 +674,11 @@ cat(sprintf("Output directory: %s\n", output_base_dir))
 # ===================================================
 # ECOREGION-SPECIFIC ANALYSIS
 # Analyze species turnover, gains/losses per MEOW ecoregion
-# outputs: 
-# in folder: 
+# outputs: ecoregion_mean_delta.csv
+# in folder: .../ecoregion_analysis/
 # ===================================================
-base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX"
 scenarios <- c("current", "ssp126", "ssp245", "ssp585")
-meow_path <- "C:/biomod2_git/MEOW_FINAL/MEOW/meow_ecos.shp"
+meow_path <- file.path(base_dir, "MEOW/meow_ecos.shp")
 out_dir <- file.path(base_dir, "ecoregion_analysis")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -756,3 +753,4 @@ for (sc in setdiff(scenarios, "current")) {
 ecoregion_delta_df <- bind_rows(ecoregion_delta_results)
 
 write.csv(ecoregion_delta_df, file.path(out_dir, "ecoregion_mean_delta.csv"), row.names = FALSE)
+
