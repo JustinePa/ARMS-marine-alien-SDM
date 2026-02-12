@@ -17,7 +17,7 @@ library(patchwork)
 
 base_dir   <- "path/to/your/working/directory"
 input_file <- file.path(base_dir, "plots_occ_vs_perf/individual_models_all_diagnostics.csv")
-output_dir <- file.path(base_dir, "plots_occ_vs_perf")
+output_dir <- file.path(base_dir, "figures")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
 # ========== Load Pre-processed Data ==========
@@ -146,6 +146,7 @@ ggsave(file.path(output_dir, "Figure_1.svg"),
        height = 90, 
        units = "mm",
        device = "svg")
+
 
 
 
