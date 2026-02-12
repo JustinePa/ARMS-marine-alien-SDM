@@ -19,7 +19,9 @@
 library(terra)
 library(biooracler)
 
-setwd("")
+# Run this script from your project root directory, e.g.:
+# setwd("/path/to/your/project")
+# All outputs will be written relative to that directory.
 
 # Define output directory
 dir <- "layers"
@@ -124,7 +126,7 @@ datasets_list <- list(
          variables = c("dfe_mean"), 
          constraints = constraints),
     list(dataset_id = "par_mean_baseline_2000_2020_depthsurf", 
-         variables = c("par_mean_mean"), 
+         variables = c("par_mean_mean"), # Note the different naming pattern here.
          constraints = constraints),
     list(dataset_id = "si_baseline_2000_2018_depthsurf", 
          variables = c("si_mean"), 
@@ -149,7 +151,7 @@ for (depth in names(datasets_list)) {
   for (dataset in datasets_list[[depth]]) {
     dataset_id <- dataset$dataset_id
     variables <- dataset$variables
-    constraints <- dataset$constraints
+    ds_constraints <- dataset$constraints
     
     cat("Downloading:", dataset_id, "\n")
     cat("Variables:", paste(variables, collapse = ", "), "\n")
@@ -158,7 +160,7 @@ for (depth in names(datasets_list)) {
     download_layers(
       dataset_id, 
       variables = variables, 
-      constraints = constraints, 
+      constraints = ds_constraints, 
       directory = depth_dir
     )
     
