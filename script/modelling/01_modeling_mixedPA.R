@@ -27,6 +27,8 @@ n_cores      <- as.numeric(args[9])
 if (is.na(n_cores)) stop("n_cores must be a number, got: ", args[9])
 env_file     <- args[10]
 outdir       <- args[11]
+if (length(args) < 12) stop("Usage: ... <modeling_date>")
+modeling_date <- args[12]
 
 dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
@@ -243,7 +245,7 @@ if (cv_strategy %in% c("kfold", "block", "strat", "env")) cv_args$CV.k <- cv_k
 
 # modeling id
 env_name   <- tools::file_path_sans_ext(basename(env_file))
-modeling_id <- paste("2025-09-24", "mix50", cv_strategy, env_name, sep = "_") # date entered manually to avoid problem if runs over night
+modeling_id <- paste(modeling_date, "mix50", cv_strategy, env_name, sep = "_") 
 
 # ========== Run Modeling ==========
 myBiomodModelOut <- do.call(BIOMOD_Modeling, c(
