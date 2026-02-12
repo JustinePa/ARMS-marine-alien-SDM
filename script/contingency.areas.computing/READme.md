@@ -1,14 +1,137 @@
-# Cold Spot Analysis for Ballast Water Contigency Areas
+## Ballast Water Contingency Areas (Cold Spot Analysis)
 
-A spatial analysis workflow for identifying areas that can be used as Ballast Water Contigency Areas ("cold spots", i.e. areas with less risks of alien establishment and spread). This analysis integrates species distribution models, marine protected areas, offshore wind farms, and coastal proximity to identify strategic locations.
+Scripts: `cold.spot.masterscript.R`, `cold.spot.prepare.data.R`,
+`cold.spot.calculate.cold.spots.R`, `cold.spot.make.plots.R`
 
-## Overview
+These scripts identify priority areas for ballast water management by
+combining multi-species habitat suitability predictions with spatial layers
+for Marine Protected Areas (MPAs), Offshore Wind Farms (OWFs), and the
+coastline. Areas meeting all threshold criteria simultaneously are defined
+as "cold spots" (locations where NIS introduction risk is low and
+management intervention is feasible).
 
-This workflow processes ensemble habitat suitability predictions for 69 marine non-indigenous species across European seas and identifies areas that:
-- Low alien suitability
-- Are located away from existing Marine Protected Areas (MPAs)
-- Are distant from Offshore Wind Farms (OWFs) 
-- Are sufficiently far from the coastline
+All four scripts run locally on your PC. Only the master script needs to
+be run directly, it calls the three subscripts automatically.
+
+### Prerequisites
+
+- [ ] R 4.4.1 with the following packages installed:
+      `terra`, `raster`, `sf`, `dplyr`, `stars`
+- [ ] Post-modelling outputs: stacked mean suitability raster
+      (`new_stack_mean_norm01_current.tif`) produced by the post-modelling
+      pipeline or downloaded from [DOI]
+- [ ] `Datalayers/` folder containing:
+      - `windfarmspolyPolygon.shp` — offshore wind farm polygons obtained from [EMODnet](https://emodnet.ec.europa.eu/geoviewer/#)
+      - `wdpa_raster_europe.tif` — Marine Protected Areas raster obtained from the [World Database of Protected Areas](https://www.protectedplanet.net/en/thematic-areas/wdpa?tab=WDPA)
+      - `ref-countries-2020-01m.shp/CNTR_RG_01M_2020_4326.shp` — country
+        boundaries (Eurostat, available at [ec.europa.eu/eurostat](https://ec.europa.eu/eurostat))
+      - `chl_baseline_2000_2018_depthmean_chl_mean_1.tif` — coastline
+        reference raster (from Bio-ORACLE, used to define the ocean mask)
+      - `new_stack_mean_norm01_current.tif` — stacked suitability raster
+
+### Setup
+
+All scripts must be run from the directory containing the cold spot scripts
+and the `Datalayers/` folder. Set your working directory before running:
+
+```r
+setwd("path/to/cold_spot_scripts/")
+source("cold.spot.masterscript.R")
+```
+
+All input paths and threshold parameters are configured at the top of
+`cold.spot.masterscript.R` — this is the only file you need to edit.
+
+### Pipeline overview
+
+```
+cold.spot.masterscript.R
+├── cold.spot.prepare.data.R     → cropped rasters + distance layers (.tif, .rda)
+├── cold.spot.calculate.cold.spots.R  → cold spot polygons (.rda)
+└── cold.spot.make.plots.R       → publication figure (.pdf)
+```
+
+Intermediate outputs are cached — if output files already exist, the
+subscripts skip recomputation. To force recalculation, delete the relevant
+intermediate files or rename them in the master script.
+
+---
+
+### Configuration
+
+All parameters are set in `cold.spot.masterscript.R`. There are two
+sections to edit:
+
+**Study area extent** (section: `CONFIGURATION: Input Data Layers`):
+```r
+xlim <- c(-5, 30)   # longitude range (°E)
+ylim <- c(50, 70)   # latitude range (°N)
+```
+The published analysis covers the North Sea, Baltic Sea, and Norwegian Sea.
+
+**Cold spot thresholds** (section: `STEP 2`):
+```r
+suitability.limit <- 0.2   # maximum mean suitability (0-1 scale)
+MPA.limit         <- 7     # minimum distance from MPAs (km)
+OWF.limit         <- 7     # minimum distance from OWFs (km)
+coast.limit       <- 7     # minimum distance from coastline (km)
+```
+Cold spots must satisfy all four criteria simultaneously. Increase threshold
+values to produce more restrictive (smaller) cold spot areas; decrease them
+for more permissive results.
+
+**Figure extent** (section: `STEP 3`) — can be a subset of the study area:
+```r
+xlim3 <- c(0, 30)
+ylim3 <- c(53, 70)
+```
+
+**Diagnostic plots:**
+```r
+plot.data <- TRUE   # set to FALSE to suppress intermediate diagnostic plots
+```
+When `TRUE`, two diagnostic PNG files are saved during data preparation and
+one during cold spot calculation. These are for visual checking only and are
+not used in the publication.
+
+---
+
+### Outputs
+
+| File | Description |
+|------|-------------|
+| `world1geometry.crop.layer.rda` | Cropped country boundaries |
+| `shape.owf.crop.layer.rda` | Cropped OWF polygons |
+| `coastline.rasterlayer.crop.layer.tif` | Cropped coastline raster |
+| `mpa.rasterlayer.crop.layer.tif` | Cropped MPA raster |
+| `suitability.rasterlayer.crop.layer.tif` | Cropped suitability raster |
+| `mpa.rasterlayer_dist.tif` | Distance from MPAs (m) |
+| `owf.rasterlayer_dist.tif` | Distance from OWFs (m) |
+| `coast.rasterlayer_dist.tif` | Distance from coastline (m) |
+| `Coldspot.layer.rda` | Cold spot multipolygons |
+| `MPA.polygon.layer.rda` | MPA polygons for plotting |
+| `figure_coldspot_analysis.pdf` | Publication figure |
+| `diagnostic_input_layers.png` | Diagnostic: input layers (if `plot.data = TRUE`) |
+| `diagnostic_distance_layers.png` | Diagnostic: distance layers (if `plot.data = TRUE`) |
+| `diagnostic_coldspot_polygons.png` | Diagnostic: cold spot polygons (if `plot.data = TRUE`) |
+
+> ℹ️ Polygon layers are saved as `.rda` files rather than shapefiles due
+> to the complexity of the aggregated multipolygon geometries. Load them
+> with `load("Coldspot.layer.rda")` — the object name after loading is
+> `unifiedPolygons`.
+
+---
+
+### Runtime
+
+- **Step 1** (data preparation): 10–30 minutes depending on system, dominated
+  by distance raster calculation. Subsequent runs are near-instant if
+  intermediate files exist.
+- **Step 2** (cold spot calculation): 5–15 minutes, dominated by
+  polygon aggregation.
+- **Step 3** (figure generation): 1–5 minutes.
+
+---
 
 ## Author & Contact
 
@@ -18,176 +141,4 @@ Email: gunnar.andersson@sva.se
 Date: November 2025  
 Last Modified: January 13, 2025
 
-## Workflow Structure
 
-The analysis is organized into a master orchestration script that sequentially executes three processing modules:
-
-```
-cold_spot_masterscript.R          # Main orchestration script
-├── cold_spot_prepare_data.R      # Step 1: Data preparation
-├── cold_spot_calculate_cold_spots.R  # Step 2: Cold spot identification
-└── cold_spot_make_plots.R        # Step 3: Figure generation
-```
-
-### Step 1: Data Preparation (`cold_spot_prepare_data.R`)
-
-**Purpose:** Prepare and process spatial data layers for analysis
-
-**Inputs:**
-- Ensemble suitability predictions (GeoTIFF, 0-1 scale, mean across 69 NIS species)
-- Marine Protected Areas database (GeoTIFF raster)
-- Offshore Wind Farm polygons (shapefile)
-- European country boundaries (shapefile)
-- Coastline reference layer (GeoTIFF)
-- Study area extent (longitude/latitude bounds)
-
-**Processing:**
-1. Loads and crops all spatial layers to study extent
-2. Calculates Euclidean distance rasters from:
-   - Marine Protected Areas
-   - Offshore Wind Farms
-   - Coastline
-3. Saves processed layers with file checksums to avoid redundant computation
-
-**Outputs:**
-- Cropped spatial layers (.tif, .rda files)
-- Distance rasters (.tif files, units: meters)
-- Optional diagnostic plots (.png)
-
-**Key Features:**
-- Smart caching: checks for existing outputs to avoid re-computation
-- Distance calculations use `terra::distance()` for computational efficiency
-- Diagnostic plotting available for quality control
-
-### Step 2: Cold Spot Calculation (`cold_spot_calculate_cold_spots.R`)
-
-**Purpose:** Identify areas meeting all cold spot criteria
-
-**Cold Spot Definition:**  
-Areas are classified as cold spots when they meet ALL of the following criteria:
-- **Low cummulative alien suitability:** Above user-defined threshold (default: ≤ 0.2)
-- **Minimum distance from MPAs:** Greater than threshold (default: ≥ 7 km)
-- **Minimum distance from OWFs:** Greater than threshold (default: ≥ 7 km)
-- **Minimum distance from coast:** Greater than threshold (default: ≥ 7 km)
-
-**Processing Workflow:**
-1. Loads processed distance rasters and suitability predictions
-2. Converts distances from meters to kilometers
-3. Creates binary criterion layers based on thresholds
-4. Combines criteria using logical AND operation (raster multiplication)
-5. Converts resulting raster to polygon features
-6. Aggregates adjacent polygons into unified features
-
-**Outputs:**
-- Cold spot multipolygon layer (.rda)
-- MPA polygon layer for visualization (.rda)
-- Optional diagnostic plot showing cold spots and MPAs (.png)
-
-**Note:** Polygon layers are saved as `.rda` files due to compatibility issues with complex multipolygon shapefiles in the sf/terra framework.
-
-### Step 3: Figure Generation (`cold_spot_make_plots.R`)
-
-**Purpose:** Create publication-ready two-panel figure
-
-**Figure Design:**
-
-**Panel A (left):** Suitability map with infrastructure overlay
-- Continuous suitability gradient (0-1 scale, 10 color bins)
-- Marine Protected Areas overlay
-- Offshore Wind Farms overlay
-- Identified cold spots overlay
-- Comprehensive horizontal legend with all categories
-
-**Panel B (right):** Cold spot focus map
-- Model extent (areas with suitability predictions)
-- Cold spot polygons highlighted
-- Simplified visualization for clarity
-
-**Outputs:**
-- Two-panel publication figure (PDF, vector format)
-- Alternative PNG output available (modify script for raster format)
-
-### Required Data Layers
-
-All input data should be stored in a `Datalayers/` directory:
-
-1. **Ensemble Suitability** (`new_stack_mean_norm01_current.tif`)
-   - Format: GeoTIFF raster
-   - Values: 0-1 (mean habitat suitability across 70 NIS species)
-   - CRS: WGS 84 (EPSG:4326)
-   - Resolution: Should match your study requirements (e.g., 0.083°)
-
-2. **Marine Protected Areas** (`wdpa_raster_europe.tif`)
-   - Format: GeoTIFF raster
-   - Values: Binary (1 = MPA, NA = non-MPA)
-   - Source: World Database on Protected Areas (WDPA)
-
-3. **Offshore Wind Farms** (`windfarmspolyPolygon.shp`)
-   - Format: Polygon shapefile
-   - Required files: .shp, .shx, .dbf, .prj
-
-4. **Country Boundaries** (`CNTR_RG_01M_2020_4326.shp`)
-   - Format: Polygon shapefile
-   - Source: EuroGeographics or equivalent
-   - CRS: WGS 84 (EPSG:4326)
-
-5. **Coastline Reference** (`chl_baseline_2000_2018_depthmean_chl_mean_1.tif`)
-   - Format: GeoTIFF raster
-   - Purpose: Defines ocean mask for study area
-   - Note: Any ocean raster can serve this purpose
-
-### Expected Data Structure
-
-```
-project_directory/
-├── cold_spot_masterscript.R
-├── cold_spot_prepare_data.R
-├── cold_spot_calculate_cold_spots.R
-├── cold_spot_make_plots.R
-└── Datalayers/
-    ├── new_stack_mean_norm01_current.tif
-    ├── wdpa_raster_europe.tif
-    ├── windfarmspolyPolygon.shp
-    ├── chl_baseline_2000_2018_depthmean_chl_mean_1.tif
-    └── ref-countries-2020-01m.shp/
-        └── CNTR_RG_01M_2020_4326.shp
-```
-
-### R Version
-Tested with R version 4.0.0 or higher
-
-The master script will automatically:
-1. Execute all three processing steps in sequence
-2. Display progress messages in the console
-3. Generate intermediate files and final outputs
-4. Report completion status for each step
-
-## Output Files
-
-### Intermediate Files (Cached)
-
-Created in Step 1 (data preparation):
-
-```
-world1geometry.crop.layer.rda              # Cropped country boundaries
-shape.owf.crop.layer.rda                   # Cropped OWF polygons
-coastline.rasterlayer.crop.layer.tif       # Cropped coastline raster
-mpa.rasterlayer.crop.layer.tif             # Cropped MPA raster
-suitability.rasterlayer.crop.layer.tif     # Cropped suitability raster
-mpa.rasterlayer_dist.test.tif              # Distance from MPAs (m)
-owf.rasterlayer_dist.test.tif              # Distance from OWFs (m)
-coast.rasterlayer_dist.test.tif            # Distance from coast (m)
-```
-
-Created in Step 2 (cold spot calculation):
-
-```
-Coldspot.layer.test.rda                    # Cold spot polygons
-MPA.polygon.layer.rda.test                 # MPA polygons for plotting
-```
-
-### Final Outputs
-
-```
-figure_coldspot_analysis.pdf               # Two-panel publication figure
-```
