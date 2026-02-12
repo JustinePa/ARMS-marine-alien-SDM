@@ -176,10 +176,97 @@ thresholds (TSS ≥ 0.6, ROC-AUC ≥ 0.85) are included in the ensemble.
 - **Species skipped in Step 1:** If a species timed out or failed in Step 1,
   remove it from `species_list_ensemble.txt` before running this step.
 
-### 3. Current Projections
-- **03_projection_EM.R** - Project ensemble models to current environmental conditions
-- **03_projection_EM.slurm** - Single projection job
-- **03_projection_EM_array.slurm** - Array job for multiple species
+## Step 3: Current condition projections
+
+Scripts: `03_projection_EM.R`, `03_projection_EM_array.slurm`, `03_projection_EM.slurm`
+
+This step projects the ensemble models from Step 2 onto current environmental
+conditions (`myExpl_shelf.tif`), producing habitat suitability maps for each
+species under present-day climate. Three ensemble outputs are projected:
+weighted mean suitability (EMwmean), coefficient of variation (EMcv), and
+committee averaging (EMca).
+
+Two SLURM scripts are provided:
+- **`03_projection_EM_array.slurm`** — processes all species in parallel as a
+  job array. Use this for full pipeline runs.
+- **`03_projection_EM.slurm`** — processes a single hardcoded species. Use this
+  for testing, debugging, or re-running a specific species that failed in the
+  array job.
+
+### Prerequisites
+
+- [ ] Step 2 completed — ensemble model files must exist for all species,
+      named `{SpeciesName}.{ModelingID}.ensemble.models.out`
+- [ ] `species_list_ensemble.txt` in your working directory
+- [ ] `myExpl_shelf.tif` in your working directory
+- [ ] R 4.4.1 with the following packages installed: `biomod2`, `terra`
+
+### Setup
+
+**For the array job**, open `03_projection_EM_array.slurm` and edit:
+```bash
+#SBATCH -A                     # your project/allocation ID
+#SBATCH --array=1-69           # adjust to match species_list_ensemble.txt
+MODELING_DATE="2025-09-24"     # ⚠️ must exactly match the value used in steps 1 and 2
+BASENAME="myExpl_shelf"        # must match the env file used in step 1
+CV_STRATEGY="kfold"            # must match step 1
+export R_LIBS_USER=            # path to your R library
+cd                             # path to your working directory
+```
+
+**For the single-species script**, open `03_projection_EM.slurm` and additionally edit:
+```bash
+SPECIES="Bugulaneritina"       # replace with the species you want to project
+```
+
+> ⚠️ **Critical: `MODELING_ID` must match Steps 1 and 2 exactly.**
+> The `MODELING_ID` is constructed from `MODELING_DATE`, CV strategy, and
+> environment file name. It determines which ensemble model file is loaded
+> and which output directory is created. A mismatch will cause the script
+> to exit with "Model file not found". If you used the published value
+> (`2025-09-24`) in Steps 1 and 2, keep it here too.
+
+> ℹ️ **Cluster compatibility:** The `--partition=memory` directive and the
+> library path block are specific to Dardel (PDC, KTH). The memory partition
+> is used here because terra requires more RAM than standard partitions
+> provide. Replace both with the equivalent settings on your cluster.
+
+### Run
+```bash
+# Full run (all species):
+sbatch 03_projection_EM_array.slurm
+
+# Single species (testing or re-running):
+sbatch 03_projection_EM.slurm
+```
+
+### Outputs
+
+For each species, projections are saved in the species directory:
+```
+{SpeciesName}/
+└── proj_CurrentEM_{SpeciesName}_{ModelingID}/
+    ├── {SpeciesName}_ensemble.projection.out
+    ├── {SpeciesName}_ensemble.tif          # EMwmean, EMcv, EMca layers
+    ├── {SpeciesName}_ensemble_TSSbin.tif   # binary presence/absence
+    └── {SpeciesName}_ensemble_TSSfilt.tif  # suitability filtered by TSS threshold
+```
+
+The output directory name — `proj_CurrentEM_{SpeciesName}_{ModelingID}` — is
+used by the post-modelling processing script to locate current condition
+projections. Do not rename these directories.
+
+### Troubleshooting
+
+- **"Model file not found":** The `MODELING_ID` does not match what was used
+  in Step 2, or the species failed in Step 2 and has no ensemble file.
+  Check `species_list_ensemble.txt` and verify the file exists manually.
+- **Species silently skipped:** If no EMwmean/EMcv/EMca ensemble types are
+  found inside the model object, the script exits cleanly without error.
+  Check the log file for the line `"No EMwmeanByTSS/EMcvByTSS/EMcaByTSS
+  flavours found — skipping"`.
+- **Memory errors:** Increase `--mem` in the SLURM script, or reduce
+  `memfrac` in the `terraOptions()` call in the R script.
 
 ### 4. Future Projections
 - **04_projection_EM_future.R** - Project to future climate scenarios
