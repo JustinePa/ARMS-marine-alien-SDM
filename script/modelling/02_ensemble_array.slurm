@@ -34,10 +34,13 @@ SPECIES=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$species_list")
 SPECIES_SAFE=$(echo "$SPECIES" | tr ' ' '_' | tr -d '\r')
 
 # --- Which ensemble? ---
-MODELING_ID=""			# fill the modeling id
+MODELING_DATE="2025-09-24"  # must match the date used in step 1
+BASENAME="myExpl_shelf"     # must match the env file used in step 1
+CV_STRATEGY="kfold"         # must match step 1
+MODELING_ID="${MODELING_DATE}_mix50_${CV_STRATEGY}_${BASENAME}"
 
 echo "Running ENSEMBLE model for species: $SPECIES_SAFE, with runs from $MODELING_ID"
 
 # --- Run the R script ---
 mkdir -p 1.logs/EM
-Rscript --no-save --no-restore ensemble.R "$SPECIES_SAFE" "$MODELING_ID" > 1.logs/EM/ensemble_${SPECIES_SAFE}_${MODELING_ID}.out 2> 1.logs/EM/ensemble_${SPECIES_SAFE}_${MODELING_ID}.err
+Rscript --no-save --no-restore 02_ensemble.R "$SPECIES_SAFE" "$MODELING_ID" > 1.logs/EM/ensemble_${SPECIES_SAFE}_${MODELING_ID}.out 2> 1.logs/EM/ensemble_${SPECIES_SAFE}_${MODELING_ID}.err
