@@ -23,12 +23,13 @@
 # Last Modified: 2026-01-06
 ################################################################################
 
-library(terra)
 library(biooracler)
 
 cat("DOWNLOADING FUTURE BIO-ORACLE LAYERS\n")
 
-setwd("C:/biomod2_git/test")
+# Run this script from your project root directory, e.g.:
+# setwd("/path/to/your/project")
+# All outputs will be written relative to that directory.
 
 # Define output directory
 future_dir <- "layers_future"
@@ -59,6 +60,8 @@ for (ssp in ssp_scenarios) {
 cat("Directories created\n\n")
 
 # Time constraints for 2100 projections (centered on 2090-2100 period)
+# Bio-ORACLE future layers are single time-slice projections centred on 2100
+# Both timestamps are identical as only one time step is available
 constraints_future <- list(
   time = c("2090-01-01T00:00:00Z", "2090-01-01T00:00:00Z")
 )
@@ -70,6 +73,8 @@ cat("   Bathymetry and distance will come from myExpl_final.tif\n\n")
 # Define climate variables to download
 # Note: Downloads full datasets (mean, min, max when available)
 #       Filtering to VIF-selected happens in Script 7
+# Note: PAR (par_mean) is not included as it is not available in Bio-ORACLE
+# future projections and was excluded from the final predictor set in Script 5
 variable_map <- list(
   o2 = list(vars = c("o2_mean", "o2_min", "o2_max")),
   chl = list(vars = "chl_mean"),
@@ -90,7 +95,7 @@ build_datasets <- function(ssp, depth) {
   datasets <- list()
   
   for (var_name in names(variable_map)) {
-    # Skip siconc and chl for depthmean (not available)
+    # siconc and chl are not available at depthmean level in Bio-ORACLE future projections
     if (depth == "depthmean" && var_name %in% c("siconc", "chl")) next
     
     dataset_id <- paste(var_name, ssp, "2020_2100", depth, sep = "_")
