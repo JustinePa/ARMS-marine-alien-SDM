@@ -23,7 +23,6 @@ dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 # ========== Load Pre-processed Data ==========
 # Load the individual models diagnostics
 if (!file.exists(input_file)) stop("Input file not found: ", input_file, " See in the Github repo")
-required_cols <- c("n_occ", "TSS", "AUC") 
 results_all <- read.csv(input_file)
 
 # Remove rows with missing data
@@ -147,5 +146,6 @@ ggsave(file.path(output_dir, "Figure_1.svg"),
        height = 90, 
        units = "mm",
        device = "svg")
+
 
 
