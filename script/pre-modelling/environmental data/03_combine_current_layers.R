@@ -45,12 +45,12 @@ cat("     - Terrain:",
 
 
 # Step 2: Stack all layers
-cat("🔗 Stacking all layers...\n")
+cat("Stacking all layers...\n")
 layers <- rast(all_files)
 cat("   Total layers:", nlyr(layers), "\n\n")
 
 # Step 3: Add depth labels to layer names
-cat("🏷️  Adding depth labels to layer names...\n")
+cat(" Adding depth labels to layer names...\n")
 
 # Extract folder-based depth labels from file paths
 depth_labels <- sapply(dirname(all_files), basename)
