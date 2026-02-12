@@ -1,83 +1,185 @@
-# Figure Generation Scripts
+## Figure Scripts
 
-## Overview
+Scripts: `figures/figure_01.R` through `figures/figure_06.R`
 
-These scripts generate figures from processed species distribution modeling results, including model performance analyses, habitat suitability maps, and climate change projections.
-For Figure 7, see [here](https://github.com/JustinePa/ARMS-marine-alien-SDM/tree/main/script/contingency.areas.computing).
+These scripts produce all manuscript figures from the post-modelling outputs.
+All scripts run locally on your PC. Before running, set `base_dir` at the top
+of each script to your local directory containing the post-modelling outputs.
 
-## Scripts
+> ℹ️ **The published figures are archived at [DOI]. If you only want to
+> inspect the final outputs, download them directly without running these
+> scripts.**
 
-1. **Figure_1.r** - Model performance analysis (TSS/AUC vs occurrence sample size)
-2. **Figure_2.r** - Species-level habitat suitability maps with uncertainty (current conditions)
-3. **Figure_3.r** - Habitat suitability changes (current vs SSP 2-4.5)
-4. **Figure_4.r** - Cumulative habitat suitability map (invasion hotspots)
-5. **Figure_5.r** - Changes in cumulative suitability across climate scenarios (SSP 1-2.6, 2-4.5, 5-8.5)
-6. **Figure_6.R** - Ecoregion-level analysis (percentage and absolute changes in habitat suitability)
+### Prerequisites
 
-Each script is self-contained and generates a single publication figure.
+- [ ] R 4.4.1 with the following packages installed:
+      `terra`, `ggplot2`, `sf`, `rnaturalearth`, `dplyr`, `tidyr`, `tidyverse`,
+      `patchwork`, `ggpubr`, `scales`, `readr`, `grid`, `patchwork`
+- [ ] Post-modelling outputs produced by `post-mod processing.R` or
+      downloaded from [DOI]
+- [ ] `individual_models_all_diagnostics.csv` — provided in the `figures/`
+      folder of this repository (Figure 1 only)
+- [ ] MEOW ecoregion shapefile (`meow_ecos.shp`) — available from
+      [Marine Regions](https://www.marineregions.org) (Figures 2–3 and 6)
+- [ ] Cairo package for PDF font embedding (Figure 1 only) — if unavailable,
+      replace `device = cairo_pdf` with `device = "pdf"`
 
-## Requirements
+### Setup
+
+Set `base_dir` at the top of each script to your local directory:
 
 ```r
-install.packages(c("terra", "ggplot2", "sf", "rnaturalearth", 
-                   "dplyr", "tidyr", "patchwork", "ggpubr",
-                   "grid", "gridExtra", "reshape2"))
+base_dir <- "path/to/your/working/directory"  # EDIT: set once here
 ```
 
-## Input Data
+All outputs are saved to `base_dir/figures/` which is created automatically.
 
-These scripts require:
-- **Biomod2 model outputs** (habitat suitability projections)
-- **Model diagnostics** (TSS, AUC values)
-- **MEOW ecoregions shapefile** (for Figure 6)
+### Figure overview
 
-File paths are hardcoded and should be updated to match your data directory structure.
+| Script | Figure | Description | Key inputs |
+|--------|--------|-------------|------------|
+| `figure_01.R` | Figure 1 | Model performance: TSS and AUC vs occurrence count | `individual_models_all_diagnostics.csv` |
+| `figure_02.R` | Figure 2 | Per-species suitability, uncertainty, and model agreement (2 example species, current) | `EMcv/`, `EMca/`, normalized projections |
+| `figure_03.R` | Figure 3 | Per-species suitability change and habitat transitions (2 example species, SSP2-4.5) | Normalized projections (current + ssp245) |
+| `figure_04.R` | Figure 4 | Multi-species mean habitat suitability map (current, discrete categories) | `stacked_norm01/` |
+| `figure_05.R` | Figure 5 | Multi-species mean suitability change maps (all 3 scenarios, 2×2 layout) | `stacked_norm01/` |
+| `figure_06.R` | Figure 6 | Ecoregion-scale suitability change: grouped bar charts + summary tables | `stacked_norm01/`, `meow_ecos.shp` |
 
-## Output
+---
 
-Each script generates:
-- High-resolution PDF figure (publication-ready)
-- Figures saved to species-specific output directories
+### Figure 1: Model performance analysis
 
-## Figure Descriptions
+Scatter plot of TSS and AUC against occurrence count (panel a) and standard
+deviation of model performance by sample size category (panel b). Shows how
+model performance varies with data availability across the 69 study species.
 
-### Figure 1: Model Performance
-Two-panel figure showing:
-- TSS and AUC values vs occurrence sample size
-- Standard deviation decrease with sample size
+**Input:** `figures/individual_models_all_diagnostics.csv`
 
-### Figure 2: Example Species Maps
-Three-panel maps for selected species showing:
-- Habitat suitability (current conditions)
-- Coefficient of variation (EMcv)
-- Committee averaging uncertainty (EMca)
+This file aggregates per-species evaluation CSVs from the modelling pipeline.
+It is provided directly in the repository so you do not need to re-run the
+aggregation step. Note: the ROC metric from biomod2 is renamed AUC in this
+file for clarity.
 
-### Figure 3: Suitability Changes
-Maps showing habitat suitability transitions between current and future (SSP 2-4.5):
-- Suitable → Unsuitable
-- Unsuitable → Suitable
-- Persistently suitable/unsuitable
+**Output:** `figures/Figure_1.pdf` (submission), `Figure_1_preview.png`,
+`Figure_1.svg`
 
-### Figure 4: Invasion Hotspots
-Cumulative habitat suitability map showing areas suitable for multiple invasive species (current conditions).
+> ℹ️ `Figure_1.pdf` uses `cairo_pdf` for Helvetica font embedding. If Cairo
+> is not available on your system, replace `device = cairo_pdf` with
+> `device = "pdf"` — the figure will be identical but may use a substitute
+> font.
 
-### Figure 5: Future Changes
-Three-panel figure showing changes in cumulative habitat suitability under different climate scenarios (SSP 1-2.6, 2-4.5, 5-8.5).
+---
 
-### Figure 6: Ecoregion Analysis
-Bar charts comparing:
-- Percentage change in habitat suitability by ecoregion
-- Absolute change in habitat suitability by ecoregion
-Across all three SSP scenarios.
+### Figure 2: Species-level suitability and uncertainty (current)
 
-## Notes
+Three-panel figure for two example species (*Crepidula fornicata* and
+*Acartia tonsa*) showing: (a) habitat suitability, (b) coefficient of
+variation in suitable areas (S > 0.3), and (c) model agreement (EMca).
+Current climate conditions only.
 
-- Figures use European extent: longitude -28° to 70°, latitude 28° to 83°
-- Color schemes optimized for publication and colorblind accessibility
-- Detailed methods and interpretations are provided in the associated publication
+**Inputs:**
+- `EMcv/{current}/masked_emcv_alien/ALIENMASK_{SpeciesCode}_EMcvByTSS*.tif`
+- `current_proj/masked/alien/normalized/ALIENMASK_MASKED_{SpeciesCode}*norm01.tif`
+- `EMca/EMca_normalized/current/{SpeciesCode}_EMcaByTSS*.tif`
 
-## Contact
+**Output:** `figures/2species_3panel_CV_EMca_masked_new.png`
 
-Justine Pagnier  
-University of Gothenburg  
-justine.pagnier@gu.se
+> ℹ️ This figure is produced for two hardcoded example species. To generate
+> equivalent plots for other species, update `species_list` at the top of
+> the script.
+
+---
+
+### Figure 3: Species-level suitability change and habitat transitions (SSP2-4.5)
+
+Two-panel figure for the same two example species showing: (a) discrete
+change in suitability between current and SSP2-4.5 (2100), and (b)
+suitability transition categories (remains suitable / becomes suitable /
+becomes unsuitable / remains unsuitable) using a threshold of S = 0.5.
+
+**Inputs:**
+- `current_proj/masked/alien/normalized/ALIENMASK_MASKED_{SpeciesCode}*norm01.tif`
+- `ssp245_proj/masked/alien/normalized/ALIENMASK_MASKED_{SpeciesCode}*norm01.tif`
+
+**Output:** `figures/2species_change_and_transitions_ssp245_new.png`
+
+> ℹ️ Compares current vs SSP2-4.5 only. To compare with other future
+> scenarios, update `scenarios_needed[2]` at the top of the script.
+
+---
+
+### Figure 4: Multi-species mean habitat suitability map (current)
+
+Single-panel map of mean habitat suitability across all 69 species under
+current climate, classified into 10 discrete categories from negligible
+(S < 0.1) to critical (S > 0.9). Categories reflect management priority
+levels for non-indigenous species.
+
+**Input:**
+`current_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_current.tif`
+
+**Output:** `figures/Figure_4.png`
+
+> ℹ️ To produce equivalent maps for future scenarios, change `scenario_name`
+> at the top of the script to `"ssp126"`, `"ssp245"`, or `"ssp585"`.
+
+---
+
+### Figure 5: Multi-species mean suitability change maps (all scenarios)
+
+Three change maps in a 2×2 layout (three panels + shared legend) showing
+mean suitability change across all 69 species relative to current conditions,
+for SSP1-2.6, SSP2-4.5, and SSP5-8.5 (2100). Changes classified into 7
+discrete categories from major decrease to major increase.
+
+**Inputs:**
+- `current_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_current.tif`
+- `ssp126_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp126.tif`
+- `ssp245_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp245.tif`
+- `ssp585_proj/masked/alien/stacked_norm01/new_stack_mean_norm01_ssp585.tif`
+
+**Output:** `figures/Figure_5.png`
+
+---
+
+### Figure 6: Ecoregion-scale suitability change
+
+Side-by-side grouped bar charts showing percentage change (panel a) and
+absolute change (panel b) in mean habitat suitability per MEOW ecoregion
+across all three scenarios, with error bars showing standard deviation.
+Ecoregions ordered by centroid latitude. Also produces two summary CSV
+tables.
+
+**Inputs:**
+- `stacked_norm01/new_stack_mean_norm01_{scenario}.tif` for all 4 scenarios
+- `MEOW/meow_ecos.shp`
+
+**Outputs:**
+- `figures/Figure_6.png`
+- `figures/ecoregion_dual_metrics_table.csv` — per-ecoregion statistics
+  for all scenarios
+- `figures/ecoregion_dual_metrics_summary.csv` — cross-ecoregion mean and
+  SD per scenario
+
+> ⚠️ This script extracts raster values for all 18 ecoregions across 4
+> scenarios. Runtime is approximately 10–20 minutes depending on system
+> memory. Adding `terraOptions(memfrac = 0.5)` at the top of the script
+> can help if memory errors occur.
+
+---
+
+### Troubleshooting
+
+- **Files not found:** Ensure `base_dir` points to the directory containing
+  your post-modelling outputs and that post-processing has completed for
+  all four scenarios before running figure scripts.
+- **`cairo_pdf` error:** Replace `device = cairo_pdf` with `device = "pdf"`
+  in Figure 1.
+- **Wrong SSP2-4.5 results in Figure 6:** Check that `ssp245_path` points
+  to `new_stack_mean_norm01_ssp245.tif` and not `ssp126`. This is a known
+  copy-paste error in some versions of the script.
+- **Species not found in Figures 2–3:** File pattern matching uses the
+  no-spaces species code (e.g. `Crepidulafornicata`). Ensure your projection
+  filenames follow the same naming convention as the modelling pipeline.
+- **Memory errors in Figure 6:** Reduce `memfrac` in `terraOptions()` or
+  process scenarios sequentially by subsetting `future_scenarios`.
