@@ -7,9 +7,11 @@ library(patchwork)
 library(grid)
 library(gridExtra)
 
-emcv_base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/EMcv"
-emca_base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX/EMca/EMca_normalized"
-base_dir <- "C:/biomod2_git/post_modelisation/species_maps_mix50_DISTFIX"
+base_dir      <- "path/to/your/working/directory"  # EDIT: set once here
+emcv_base_dir <- file.path(base_dir, "EMcv")
+emca_base_dir <- file.path(base_dir, "EMca/EMca_normalized")
+plot_dir <- file.path(base_dir, "figures/species_plots_3panel")
+dir.create(plot_dir, recursive = TRUE, showWarnings = FALSE)
 
 # European extent
 xlim_eu <- c(-28, 70)
@@ -23,11 +25,11 @@ species_list <- list(
   list(code = "Crepidulafornicata", name = "Crepidula fornicata"),
   list(code = "AcartiaAcanthacartiatonsa", name = "Acartia Acanthacartia tonsa")  
 )
+# Note: This script produces a 2-species example figure (Figure 2).
+# To reproduce the published figure, keep the species_list as provided.
+# To generate equivalent plots for other species, update species_list.
 
-# Create output directory
-plot_dir <- file.path(emcv_base_dir, "species_plots_3panel_newCV")
-dir.create(plot_dir, recursive = TRUE, showWarnings = FALSE)
-
+# Pick scenario
 scenario_name <- "current"
 
 # Initialize list to store all plots
@@ -73,7 +75,7 @@ for (spp_idx in seq_along(species_list)) {
   # Read rasters
   r_suit_current <- rast(suit_file[1])
   r_emcv <- rast(emcv_file[1])
-  r_cv_current <- r_emcv / 100
+  r_cv_current <- r_emcv / 100 # convert EMcv from 0-100 to 0-1 scale
 
   if (emca_available) {
     r_emca_current <- rast(emca_file[1])
@@ -431,3 +433,4 @@ dev.off()
 
 cat(sprintf("\n✅ Created combined figure: %s\n", out_file))
 cat("✅ Plot saved in:", plot_dir, "\n")
+
