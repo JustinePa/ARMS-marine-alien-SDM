@@ -132,18 +132,6 @@ for (i in 1:69) {
 > ⚠️ The `output_date` variable in this script must match the date used
 > in scripts 01–03. For the published analysis this is `"2025-08-19"`.
 
->  Per-species summary files (`thinning_summary_{species}.csv`) are
-> written separately to avoid race conditions during parallel execution.
-> Merge them after the run with:
-> ```r
-> files <- list.files("occurrences_thinned_0825",
->                     pattern = "^thinning_summary_.*\\.csv$",
->                     full.names = TRUE)
-> summary <- dplyr::bind_rows(lapply(files, read.csv))
-> write.csv(summary, "occurrences_thinned_0825/thinning_summary.csv",
->           row.names = FALSE)
-> ```
-
 ---
 
 ### Troubleshooting
