@@ -344,8 +344,27 @@ For each species and scenario, projections are saved in the species directory:
     └── {SpeciesName}_ensemble.tif
 ```
 
-These output directory names are used by the post-modelling processing script
-to locate future projections. Do not rename them.
+Before running the post-modelling script, download your projection outputs
+from the HPC cluster and organise them as follows:
+```
+base_dir/
+├── current_proj/               # outputs from 03_projection_EM.R
+│   └── *.tif
+├── ssp126_proj/                # outputs from 04_projection_EM_future.R
+│   └── *.tif
+├── ssp245_proj/
+│   └── *.tif
+├── ssp585_proj/
+│   └── *.tif
+└── env_data/
+    └── myExpl_shelf.tif        # copy from your HPC working directory
+    └── ssp126_shelf_2100.tif
+    └── ssp245_shelf_2100.tif
+    └── ssp585_shelf_2100.tif
+```
+
+Set `base_dir` at the top of the script to the path of this directory
+before running.
 
 ### Troubleshooting
 
@@ -361,95 +380,3 @@ to locate future projections. Do not rename them.
   manually before re-running.
 - **`✖ Failed` in log:** The forecasting call itself failed for a scenario.
   The error message from biomod2 will appear on the same line in the log.
-
-
-
-
-
-## Input Files
-
-### Required Data
-1. **Species list:** `species_list.txt` (all species you wish to model) or `species_list_ensemble.txt` (all species that actually got individual models, as some did not get enough occurrence data to be modelled)
-2. **Occurrence data:** `occurrences_thinned_0825/{species}_merged_thinned_2025-08-19.csv`
-   - Generated from `pre-modelling/occurrence_data/` pipeline
-3. **Environmental layers:** 
-   - Current: `myExpl_shelf.tif`
-   - Future: `ssp126_shelf_2100.tif`, `ssp245_shelf_2100.tif`, `ssp585_shelf_2100.tif`
-   - Generated from `pre-modelling/environmental_data/` pipeline
-
-### Input Format
-**Occurrence files** must contain:
-- `longitude` - Decimal longitude
-- `latitude` - Decimal latitude  
-- `occurrenceStatus` - 1 for presence, 0 for absence
-
-## Key Parameters
-
-### Modeling (Script 1)
-- **PA distance:** 20-100 km from presences
-- **CV strategy:** 5-fold cross-validation
-- **Algorithms:** RF, MAXNET, MARS, GAM, XGBOOST
-- **Cores:** 4 per species
-
-### Ensemble (Script 2)
-- **Metric thresholds:** TSS ≥ 0.6, ROC ≥ 0.85
-- **Ensemble algorithms:** EMwmean, EMcv, EMca
-- **Model selection:** Based on TSS and ROC performance
-
-### Projections (Scripts 3-4)
-- **Extent:** Continental shelf (0-200m depth)
-- **Output format:** Binary predictions + habitat suitability (0-1)
-- **Uncertainty metrics:** Coefficient of variation, committee averaging
-
-## Output Structure
-
-```
-project/
-├── eval/                           # Individual model outputs
-│   └── {species}_mixed_*/
-│       ├── {species}.models.out    # biomod2 model object
-│       └── individual_eval.csv     # Model evaluation metrics
-│
-├── EM_mix50/                       # Ensemble models
-│   └── full_eval_EM_{species}.csv  # Ensemble evaluation
-│
-├── current_proj/                   # Current projections
-│   └── {species}/
-│       ├── EMwmean/
-│       ├── EMcv/
-│       └── EMca/
-│
-├── ssp126_proj/                    # Future projections (low)
-├── ssp245_proj/                    # Future projections (medium)
-└── ssp585_proj/                    # Future projections (high)
-```
-
-## Integration with Other Pipelines
-
-**Inputs from:**
-- `pre-modelling/environmental_data/` → `myExpl_shelf.tif`, `ssp*_shelf_2100.tif`
-- `pre-modelling/occurrence_data/` → `occurrences_thinned_0825/*.csv`
-
-**Outputs to:**
-- `figures/` → Model predictions and evaluations
-- Post-processing analysis → Stacked suitability maps, uncertainty metrics
-
-## Citation
-
-If you use these scripts, please cite:
-
-**Our paper:**
-> [Full citation]
-
-**biomod2:**
-> Thuiller, W., Georges, D., Gueguen, M., Engler, R., & Breiner, F. (2023). biomod2: Ensemble Platform for Species Distribution Modeling. R package version 4.2-5.
-
-## Contact
-
-**Justine Pagnier**  
-University of Gothenburg  
-justine.pagnier@gu.se
-
----
-
-**Note:** File paths and HPC module versions in SLURM scripts are specific to the Dardel cluster at PDC (KTH). Adjust for your HPC environment.
