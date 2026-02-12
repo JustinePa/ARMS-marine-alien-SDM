@@ -52,6 +52,9 @@ ENV="myExpl_shelf.tif"
 PA_DIST_MIN=20000
 PA_DIST_MAX=100000
 
+# Date of the published analysis; update if re-running (better to compare different permutations of parameters)
+MODELING_DATE="2025-09-24"
+
 BASENAME=$(basename "$ENV" .tif)
 OUTDIR="eval/${SPECIES}_mixed_${BASENAME}_${CV_STRATEGY}"
 mkdir -p "$OUTDIR"
@@ -71,4 +74,5 @@ Rscript 01_modeling_mixedPA.R \
   "$CV_K" \
   "$N_CORES" \
   "$ENV" \
-  "$OUTDIR"
+  "$OUTDIR" \
+  "$MODELING_DATE"
