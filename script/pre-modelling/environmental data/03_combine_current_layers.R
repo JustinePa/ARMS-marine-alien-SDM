@@ -5,9 +5,9 @@
 # Purpose: Load all Bio-ORACLE .nc files, stack them, add distance to coast,
 #          and create properly labeled layer names with depth information
 #
-# Input:   layers2/depthmean/*.nc
-#          layers2/depthsurf/*.nc
-#          layers2/terrain/*.nc
+# Input:   layers/depthmean/*.nc
+#          layers/depthsurf/*.nc
+#          layers/terrain/*.nc
 #          distcoast.tif
 # Output:  current_layers_raw.tif
 #
@@ -15,11 +15,15 @@
 # Institution: University of Gothenburg
 # Contact: justine.pagnier@gu.se
 # Date Created: 2025-08-19
-# Last Modified: 2026-01-065
+# Last Modified: 2026-02-12
 ################################################################################
 
 library(terra)
-setwd("")
+
+# Run this script from your project root directory, e.g.:
+# setwd("/path/to/your/project")
+# All outputs will be written relative to that directory.
+
 # Define directory with Bio-ORACLE layers
 dir <- "layers"
 
