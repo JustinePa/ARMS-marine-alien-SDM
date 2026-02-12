@@ -32,11 +32,15 @@ SPECIES="Bugulaneritina"  # <-- Change to the species you're projecting
 SPECIES_SAFE=$(echo $SPECIES | tr ' ' '_' | tr -d '\r')
 
 # --- Which ensemble? How many cores? ---
-MODELING_ID=""				# Add modeling ID
+MODELING_DATE="2025-09-24"  # must match the date used in step 1
+BASENAME="myExpl_shelf"     # must match the env file used in step 1
+CV_STRATEGY="kfold"         # must match step 1
+MODELING_ID="${MODELING_DATE}_mix50_${CV_STRATEGY}_${BASENAME}"
+
 N_CORES=4
 
 echo "Running projections for: $SPECIES_SAFE, with ensemble from $MODELING_ID"
 
 # --- Launch the R script ---
 mkdir -p 1.logs/EM
-Rscript --no-save --no-restore projection_EM.R $SPECIES_SAFE "$MODELING_ID" $N_CORES > 1.logs/EM/future_projection_${SPECIES_SAFE}_${MODELING_ID}.out 2> 1.logs/EM/future_projection_${SPECIES_SAFE}_${MODELING_ID}.err
+Rscript --no-save --no-restore projection_EM.R "$SPECIES_SAFE" "$MODELING_ID" $N_CORES > 1.logs/EM/future_projection_${SPECIES_SAFE}_${MODELING_ID}.out 2> 1.logs/EM/future_projection_${SPECIES_SAFE}_${MODELING_ID}.err
