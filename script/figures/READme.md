@@ -6,23 +6,17 @@ These scripts produce all manuscript figures from the post-modelling outputs.
 All scripts run locally on your PC. Before running, set `base_dir` at the top
 of each script to your local directory containing the post-modelling outputs.
 
-> ℹ️ **The published figures are archived at [DOI]. If you only want to
-> inspect the final outputs, download them directly without running these
-> scripts.**
-
 ### Prerequisites
 
 - [ ] R 4.4.1 with the following packages installed:
       `terra`, `ggplot2`, `sf`, `rnaturalearth`, `dplyr`, `tidyr`, `tidyverse`,
       `patchwork`, `ggpubr`, `scales`, `readr`, `grid`, `patchwork`
 - [ ] Post-modelling outputs produced by `post-mod processing.R` or
-      downloaded from [DOI]
-- [ ] `individual_models_all_diagnostics.csv` — provided in the `figures/`
-      folder of this repository (Figure 1 only)
+      downloaded from [[Figshare]](https://figshare.com/s/ab27e1dcaee11ba59e88)
+- [ ] `individual_models_all_diagnostics.csv` and `ThinningSummary.csv` — provided in the `figures/`
+      folder of this repository (Figure 1 only), inferred from data found in the [[Figshare repository]](https://figshare.com/s/ab27e1dcaee11ba59e88)
 - [ ] MEOW ecoregion shapefile (`meow_ecos.shp`) — available from
       [Marine Regions](https://www.marineregions.org) (Figures 2–3 and 6)
-- [ ] Cairo package for PDF font embedding (Figure 1 only) — if unavailable,
-      replace `device = cairo_pdf` with `device = "pdf"`
 
 ### Setup
 
@@ -62,11 +56,6 @@ file for clarity.
 
 **Output:** `figures/Figure_1.pdf` (submission), `Figure_1_preview.png`,
 `Figure_1.svg`
-
-> ℹ️ `Figure_1.pdf` uses `cairo_pdf` for Helvetica font embedding. If Cairo
-> is not available on your system, replace `device = cairo_pdf` with
-> `device = "pdf"` — the figure will be identical but may use a substitute
-> font.
 
 ---
 
@@ -165,21 +154,4 @@ tables.
 > scenarios. Runtime is approximately 10–20 minutes depending on system
 > memory. Adding `terraOptions(memfrac = 0.5)` at the top of the script
 > can help if memory errors occur.
-
----
-
-### Troubleshooting
-
-- **Files not found:** Ensure `base_dir` points to the directory containing
-  your post-modelling outputs and that post-processing has completed for
-  all four scenarios before running figure scripts.
-- **`cairo_pdf` error:** Replace `device = cairo_pdf` with `device = "pdf"`
-  in Figure 1.
-- **Wrong SSP2-4.5 results in Figure 6:** Check that `ssp245_path` points
-  to `new_stack_mean_norm01_ssp245.tif` and not `ssp126`. This is a known
-  copy-paste error in some versions of the script.
-- **Species not found in Figures 2–3:** File pattern matching uses the
-  no-spaces species code (e.g. `Crepidulafornicata`). Ensure your projection
-  filenames follow the same naming convention as the modelling pipeline.
-- **Memory errors in Figure 6:** Reduce `memfrac` in `terraOptions()` or
-  process scenarios sequentially by subsetting `future_scenarios`.
+.
