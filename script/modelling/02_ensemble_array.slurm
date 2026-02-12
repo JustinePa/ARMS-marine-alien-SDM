@@ -16,7 +16,7 @@ module load gdal/3.9.0-cpeGNU-23.12
 module load proj/9.1.1
 module load geos/3.9.1
 
-# --- Environment variables ---
+# --- Set custom R library path (Dardel/PDC specific — adapt for your cluster) --- 
 export R_LIBS_USER=  		# add path to custom libraries
 export LD_LIBRARY_PATH=/opt/cray/pe/R/4.4.1/lib64/R/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/pdc/software/eb/software/proj/9.1.1/lib64:/pdc/software/23.12/eb/software/gdal/3.9.0-cpeGNU-23.12/lib64:$LD_LIBRARY_PATH
