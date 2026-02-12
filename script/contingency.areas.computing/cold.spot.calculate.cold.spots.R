@@ -37,16 +37,17 @@
 # Institution: SVA - Swedish Veterinary Institute
 # Contact: gunnar.andersson@sva.se
 # Date Created: November 2025
-# Last Modified: 2025-01-13
+# Last Modified: 2026-01-13
 ################################################################################
 
 library(terra)
 library(raster)
-library(sf)
-library(fBasics)
 library(maptools)
-library(dplyr)
+library(fBasics)
 library(stars)
+library(sf)
+library(dplyr)
+
 
 ################################################################################
 # Parse Command Line Arguments
@@ -58,6 +59,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 cat("Received", length(args), "arguments\n")
 cat(paste("Argument", seq_along(args), "=", args, collapse = "\n"), "\n\n")
+if (length(args) < 18) stop("Expected 18 arguments, received ", length(args))
 
 # Input layers
 suitability.rasterlayer.crop.layer <- args[1]
@@ -147,6 +149,8 @@ cat("  MPA criterion: cells >", MPA.limit, "km from MPAs\n")
 owf.discrete <- owf.rasterlayer_dist.km > OWF.limit
 cat("  OWF criterion: cells >", OWF.limit, "km from OWFs\n")
 
+# Cold spots require LOW suitability: select cells BELOW this threshold
+# i.e. areas where NIS establishment risk is low
 suitability.discrete <- suitability.rasterlayer < suitability.limit
 cat("  Suitability criterion: cells <", suitability.limit, "\n")
 
@@ -184,7 +188,7 @@ cat("Converting to polygon features...\n")
 combi.polygons <- rasterToPolygons(combi.discrete, fun = function(x) {x > 0})
 
 cat("Aggregating adjacent polygons...\n")
-unifiedPolygons <- aggregate(combi.polygons)
+unifiedPolygons <- aggregate(combi.polygons) # Note: aggregating complex coastal polygons may take several minutes
 
 ################################################################################
 # Create MPA Polygon Layer for Visualization
