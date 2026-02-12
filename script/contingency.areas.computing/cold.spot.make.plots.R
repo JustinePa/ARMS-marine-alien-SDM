@@ -41,7 +41,7 @@
 # Institution: SVA - Swedish Veterinary Institute
 # Contact: gunnar.andersson@sva.se
 # Date Created: November 2025
-# Last Modified: 2025-01-13
+# Last Modified: 2026-01-13
 ################################################################################
 
 library(ggplot2)
