@@ -68,6 +68,9 @@ for (i in seq_along(species_list$Species)) {
   # Clean name for file path
   clean_name <- gsub(" ", "_", tolower(species_name))
   outfile <- paste0(output_dir, "/", clean_name, "_obis_occurrences_", Sys.Date(), ".csv")
+  # NOTE: Output filenames include the download date (Sys.Date()).
+  # The published analysis used 2025-08-19. Downstream scripts (03_merge_both.R,
+  # 04_thinning.R) reference this date explicitly — update them if re-downloading.
   
   # Skip if already exists
   if (file.exists(outfile)) {
@@ -115,6 +118,7 @@ for (i in seq_along(species_list$Species)) {
   # Remove NAs and duplicates
   obis_curated <- obis_curated %>%
     na.omit() %>%
+    filter(longitude >= -180 & longitude <= 180 & latitude  >=  -90 & latitude  <=  90) %>%
     distinct()
   
   # Add occurrence status column
@@ -131,6 +135,8 @@ for (i in seq_along(species_list$Species)) {
   cat("Saved", nrow(obis_curated), "occurrences to:", basename(outfile), "\n\n")
 }
 
+obis_files <- list.files(output_dir, pattern = "_obis_occurrences_.*\\.csv$")
+cat("Total OBIS species files:", length(obis_files), "\n")      
 cat("Files saved to:", output_dir, "\n")
 cat("\nNext step: Run 03_merge_both.R\n")
 
@@ -141,3 +147,4 @@ cat("www.obis.org. Accessed:", format(Sys.Date(), "%Y-%m-%d"), "\n")
 
 
 citation_text <- "OBIS. (accessed YYYY-MM-DD) Ocean Biodiversity Information System. Intergovernmental Oceanographic Commission of UNESCO. www.obis.org"
+
