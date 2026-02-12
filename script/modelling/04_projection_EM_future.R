@@ -1,12 +1,11 @@
 # ========== Load Libraries ==========
 library(terra)
-library(ggplot2)
-library(tidyterra)
 library(biomod2)
 
 # ========== Memory-Safe Settings ==========
-dir.create("/cfs/klemming/home/p/pagnier/tmp", showWarnings = FALSE)
-terraOptions(memfrac = 0.5, tempdir = "/cfs/klemming/home/p/pagnier/tmp")
+tmp_dir <- file.path(getwd(), "tmp")
+dir.create(tmp_dir, showWarnings = FALSE)
+terraOptions(memfrac = 0.5, tempdir = tmp_dir)
 
 # ========== Parse Command Line Args ==========
 args <- commandArgs(trailingOnly = TRUE)
@@ -14,9 +13,6 @@ if (length(args) < 3) stop("? Args: <species> <modeling_id> <n_cores>")
 myRespName  <- args[1]
 modeling_id <- args[2]
 n_cores     <- as.integer(args[3])
-
-# ========== Set working directory ==========
-setwd("")
 
 # ========== Load Ensemble Model ==========
 model_dir  <- myRespName
@@ -37,18 +33,18 @@ env_path <- "myExpl_shelf.tif"
 if (!file.exists(env_path)) stop("? Environmental raster not found: ", env_path)
 myExpl <- rast(env_path)
 
-# ========== Which ensemble flavours to use ==========
+# ========== Which ensemble types to use ==========
 avail   <- biomod2::get_built_models(myBiomodEM)
-keep_em <- avail[grepl("(_EMwmeanByTSS|_EMcvByTSS)(_|$)", avail)]
+keep_em <- avail[grepl("(_EMwmeanByTSS|_EMcvByTSS|_EMcaByTSS)(_|$)", avail)]
 if (length(keep_em) == 0) {
-  cat("! No EMwmeanByTSS/EMcvByTSS flavours found — skipping species.\n")
+  cat("! No EMwmeanByTSS/EMcvByTSS/EMcaByTSS types found — skipping species.\n")
   quit(status = 0)
 }
-cat("▶ Ensemble flavours to forecast:\n")
+cat("▶ Ensemble types to forecast:\n")
 print(keep_em)
 
 # ========== Run Future Projections ==========
-scenarios <- c("ssp585")
+scenarios <- c("ssp126", "ssp245", "ssp585") # can also run one scenario at a time for less computation
 
 for (scenario in scenarios) {
   proj_name       <- paste0(scenario, "EM_", myRespName, "_", modeling_id)
@@ -69,7 +65,7 @@ for (scenario in scenarios) {
          "\nFuture:  ", paste(names(myExpl_future), collapse = ", "))
   }
 
-  cat("\n🚀 Running Future Ensemble Forecasting: ", myRespName, " | ", scenario, " | cores=", n_cores, "\n", sep = "")
+  cat("\n Running Future Ensemble Forecasting: ", myRespName, " | ", scenario, " | cores=", n_cores, "\n", sep = "")
   tryCatch({
     myBiomodEMProj_Future <- BIOMOD_EnsembleForecasting(
       bm.em         = myBiomodEM,
@@ -85,4 +81,4 @@ for (scenario in scenarios) {
   })
 }
 
-cat("\n✅ Done! Projections are in: ", normalizePath(model_dir, winslash = "/"), "\n", sep = "")
+cat("\n Done! Projections are in: ", normalizePath(model_dir, winslash = "/"), "\n", sep = "")
