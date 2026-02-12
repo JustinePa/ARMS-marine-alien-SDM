@@ -46,6 +46,12 @@ if (!"Species" %in% colnames(species_list)) {
 # For the published analysis, data were downloaded on 2025-08-19
 # Change this date if you re-run the data download scripts
 output_date <- "2025-08-19"
+# Verify at least one file exists with this date before processing
+test_files <- list.files(base_dir, pattern = output_date)
+if (length(test_files) == 0) {
+  stop("No files found matching date '", output_date, 
+       "'. Did you update output_date to match when scripts 01 and 02 were run?")
+}
 
 cat("Processing", nrow(species_list), "species\n")
 cat("Input directory:", base_dir, "\n")
@@ -141,7 +147,7 @@ for (i in seq_along(species_list$Species)) {
     obis_records = sum(merged$source == "OBIS", na.rm = TRUE),
     gbif_records = sum(merged$source == "GBIF", na.rm = TRUE),
     presences = sum(merged$occurrenceStatus == 1, na.rm = TRUE),
-    absences = sum(merged$occurrenceStatus == 0, na.rm = TRUE)
+    absences = sum(merged$occurrenceStatus == 0, na.rm = TRUE) # Note: absences = 0 expected here as GBIF/OBIS downloads are presence-only
   )
   
   cat("\n")
@@ -151,11 +157,12 @@ for (i in seq_along(species_list$Species)) {
 merged_summary <- bind_rows(summary_list)
 
 # Display summary
-cat("\n" ,"=" , rep("=", 70), "\n", sep = "")
+cat("\n", strrep("=", 71), "\n", sep = "")
 cat("Merge Summary:\n")
-cat("=", rep("=", 70), "\n", sep = "")
+cat(strrep("=", 71), "\n", sep = "")
 print(merged_summary, n = Inf)
 cat("\n")
+cat("Species with data:", nrow(merged_summary), "of", nrow(species_list), "\n")
 
 # Save summary
 summary_file <- file.path(output_dir, paste0("merged_summary_", output_date, ".csv"))
@@ -164,3 +171,4 @@ write.csv(merged_summary, summary_file, row.names = FALSE)
 cat("Summary saved to:", basename(summary_file), "\n")
 
 cat("\nNext step: Run 04_thinning.R\n")
+
