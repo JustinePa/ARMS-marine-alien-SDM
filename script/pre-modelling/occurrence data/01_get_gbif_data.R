@@ -32,9 +32,9 @@
 library(rgbif)
 
 # Set GBIF credentials
-options(gbif_user = "")
-options(gbif_email = "")
-options(gbif_pwd  = "")
+options(gbif_user = "") # add your GBIF information
+options(gbif_email = "") # add your GBIF information
+options(gbif_pwd  = "") # add your GBIF information
 
 # Define input/output paths
 species_list_file <- "species_list.csv"
@@ -173,4 +173,5 @@ for (i in seq_along(species_list$Species)) {
 downloaded_files <- list.files(output_dir, pattern = "_gbif_occurrences_.*\\.csv$")
 cat("Total species files in", output_dir, ":", length(downloaded_files), "\n")
 cat("Next step: Run 02_get_obis_data.R\n")
+
 
