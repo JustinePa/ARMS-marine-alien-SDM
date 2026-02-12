@@ -60,7 +60,7 @@ echo ">>> Running ${SPECIES} | MIX (disk+random) | ENV=${ENV} | CV=${CV_STRATEGY
 
 # Launch R script
 # CV repetitions (1 = single run of k-fold)
-Rscript modeling_mixedPA.R \
+Rscript 01_modeling_mixedPA.R \
   "$SPECIES" \
   "$ALGORITHMS" \
   "$PA_DIST_MIN" \
