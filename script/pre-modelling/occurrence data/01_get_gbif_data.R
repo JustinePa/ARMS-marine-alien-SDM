@@ -24,13 +24,12 @@
 # Institution: University of Gothenburg
 # Contact: justine.pagnier@gu.se
 # Date Created: 2025-08-19
-# Last Modified: 2026-01-06
+# Last Modified: 2026-02-12
 ################################################################################
 
 
 # Load required packages
 library(rgbif)
-library(tidyverse)
 
 # Set GBIF credentials
 options(gbif_user = "")
@@ -74,6 +73,9 @@ for (i in seq_along(species_list$Species)) {
   # Clean species name for file naming
   clean_name <- gsub(" ", "_", tolower(species_name))
   outfile <- paste0(output_dir, "/", clean_name, "_gbif_occurrences_", Sys.Date(), ".csv")
+  # NOTE: Output filenames include the download date (Sys.Date()).
+  # The published analysis used 2025-08-19. Downstream scripts (03_merge_both.R,
+  # 04_thinning.R) reference this date explicitly — update them if re-downloading
   
   # Skip if file already exists
   existing_files <- list.files(
@@ -168,4 +170,7 @@ for (i in seq_along(species_list$Species)) {
 }
 
 
-cat("Files saved to:", output_dir, "\n")
+downloaded_files <- list.files(output_dir, pattern = "_gbif_occurrences_.*\\.csv$")
+cat("Total species files in", output_dir, ":", length(downloaded_files), "\n")
+cat("Next step: Run 02_get_obis_data.R\n")
+
