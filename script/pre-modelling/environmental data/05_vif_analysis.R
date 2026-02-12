@@ -25,7 +25,14 @@ library(usdm)
 
 cat("VIF ANALYSIS - Collinearity Reduction\n")
 
-setwd("C:/biomod2_git/test")
+# Run this script from your project root directory, e.g.:
+# setwd("/path/to/your/project")
+# All outputs will be written relative to that directory.
+
+# NOTE: The variable selection produced by this script reflects the published
+# analysis. Re-running may produce different results due to stepwise VIF
+# algorithm behaviour. The retained variables for the published analysis are
+# listed in selected_var_names.txt (committed to this repository).
 
 # Load interpolated layers
 cat(" Loading interpolated environmental layers...\n")
@@ -35,16 +42,16 @@ cat("   Total predictors:", nlyr(myExpl_combined), "\n")
 # Step 1: Run VIF analysis
 cat("Step 1/4: Running VIF analysis (VIF threshold = 10)...\n")
 
-myExpl_vif <- vifstep(myExpl_combined, th = 10)
+myExpl_vif <- vifstep(myExpl_combined, th = 10)  # the default sample size for vifstep() is 5000
 
 # Extract results
 selected_var_names <- myExpl_vif@results$Variables
 original_names <- names(myExpl_combined)
 removed_names <- setdiff(original_names, selected_var_names)
 
-cat("   ✅ VIF analysis complete\n\n")
+cat(" VIF analysis complete\n\n")
 
-# Step 2: Display results
+# Display results
 cat("VIF RESULTS\n")
 cat("Original predictors:", length(original_names), "\n")
 cat("Retained predictors:", length(selected_var_names), "\n")
@@ -71,13 +78,13 @@ writeLines(removed_names, "removed_var_names.txt")
 cat("SAVED: selected_var_names.txt\n")
 cat("SAVED: removed_var_names.txt\n\n")
 
-# Step 3: Create subset with selected variables
+# Step 2: Create subset with selected variables
 cat("Step 2/4: Creating VIF-filtered stack...\n")
 myExpl_done <- myExpl_combined[[selected_var_names]]
-writeRaster(myExpl_done, "myExpl.tif", overwrite = TRUE)
+writeRaster(myExpl_done, "myExpl.tif", overwrite = TRUE) # Intermediary file, not used downstream
 cat("Saved: myExpl.tif\n\n")
 
-# Step 4: Adjust for future projection compatibility
+# Step 3: Adjust for future projection compatibility
 cat("Step 3/4: Adjusting for future projection compatibility...\n")
 cat("Note: Some variables aren't available for future projections\n\n")
 
@@ -105,7 +112,11 @@ if (needs_replacement) {
   cat("No adjustments needed\n\n")
 }
 
-# Step 5: Create final stack
+# Validate all selected variables exist in the stack
+missing_vars <- selected_var_names[!selected_var_names %in% names(myExpl_combined)]
+if (length(missing_vars) > 0) stop("Variables not found in stack: ", paste(missing_vars, collapse = ", "))
+
+# Step 4: Create final stack
 cat("Step 4/4: Creating final predictor stack...\n")
 myExpl_final <- myExpl_combined[[selected_var_names]]
 
@@ -125,7 +136,7 @@ cat("   ✅ myExpl_final.tif\n\n")
 # Update selected variables list
 writeLines(selected_var_names, "selected_var_names.txt")
 
-# Step 6: Summary and recommendations
+# Summary and recommendations
 cat("VIF ANALYSIS COMPLETE\n")
 
 cat("FINAL STATISTICS:\n")
