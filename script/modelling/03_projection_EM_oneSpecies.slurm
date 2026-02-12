@@ -43,4 +43,4 @@ echo "Running projections for: $SPECIES_SAFE, with ensemble from $MODELING_ID"
 
 # --- Launch the R script ---
 mkdir -p 1.logs/EM
-Rscript --no-save --no-restore projection_EM.R "$SPECIES_SAFE" "$MODELING_ID" "$N_CORES" > 1.logs/EM/future_projection_${SPECIES_SAFE}_${MODELING_ID}.out 2> 1.logs/EM/future_projection_${SPECIES_SAFE}_${MODELING_ID}.err
+Rscript --no-save --no-restore 03_projection_EM.R "$SPECIES_SAFE" "$MODELING_ID" "$N_CORES" > 1.logs/EM/future_projection_${SPECIES_SAFE}_${MODELING_ID}.out 2> 1.logs/EM/future_projection_${SPECIES_SAFE}_${MODELING_ID}.err
