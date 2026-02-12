@@ -385,7 +385,7 @@ if (length(all_plots) == 6) {
   combined_plot <- row1 / row2
 
   plot_title <- "Species distribution models - Suitability and uncertainty"
-  out_filename <- "2species_2panel_CV_masked_new.png"
+  out_filename <- "Figure_2.png"
   plot_width <- 16
   plot_height <- 14
 } else {
@@ -433,4 +433,5 @@ dev.off()
 
 cat(sprintf("\n✅ Created combined figure: %s\n", out_file))
 cat("✅ Plot saved in:", plot_dir, "\n")
+
 
