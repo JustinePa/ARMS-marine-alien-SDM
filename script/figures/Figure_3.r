@@ -243,7 +243,7 @@ for (spp_idx in seq_along(species_list)) {
   rm(list = rm_vars[rm_vars %in% ls()])
   gc(verbose = FALSE)
 
-  cat(sprintf("✅ Species %d/%d processed\n", spp_idx, length(species_list)))
+  cat(sprintf(" Species %d/%d processed\n", spp_idx, length(species_list)))
 }
 
 # Combine all plots in 2x2 grid (2 rows, 2 columns)
@@ -261,7 +261,7 @@ if (length(all_plots) == 4) {
   combined_plot <- row1 / row2
 
   plot_title <- "Species distribution models - Change and transitions"
-  out_filename <- "2species_change_and_transitions_ssp245_new.png"
+  out_filename <- "Figure_3.png"
   plot_width <- 18
   plot_height <- 14
 } else {
