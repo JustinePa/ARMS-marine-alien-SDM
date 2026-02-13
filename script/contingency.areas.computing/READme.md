@@ -19,7 +19,7 @@ be run directly, it calls the three subscripts automatically.
       `terra`, `raster`, `sf`, `dplyr`, `stars`
 - [ ] Post-modelling outputs: stacked mean suitability raster
       (`new_stack_mean_norm01_current.tif`) produced by the post-modelling
-      pipeline or downloaded from [DOI]
+      pipeline or downloaded from the [Figshare repository](https://figshare.com/s/ab27e1dcaee11ba59e88)
 - [ ] `Datalayers/` folder containing:
       - `windfarmspolyPolygon.shp` — offshore wind farm polygons obtained from [EMODnet](https://emodnet.ec.europa.eu/geoviewer/#)
       - `wdpa_raster_europe.tif` — Marine Protected Areas raster obtained from the [World Database of Protected Areas](https://www.protectedplanet.net/en/thematic-areas/wdpa?tab=WDPA)
@@ -28,6 +28,10 @@ be run directly, it calls the three subscripts automatically.
       - `chl_baseline_2000_2018_depthmean_chl_mean_1.tif` — coastline
         reference raster (from Bio-ORACLE, used to define the ocean mask)
       - `new_stack_mean_norm01_current.tif` — stacked suitability raster
+      
+> ℹ️ The complete `Datalayers/` folder used in the published analysis 
+> is archived in the [Figshare repository](https://figshare.com/s/ab27e1dcaee11ba59e88).
+> Download and place it in the same directory as the cold spot scripts.
 
 ### Setup
 
