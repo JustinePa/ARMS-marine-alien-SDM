@@ -2,12 +2,10 @@
 
 **Scripts used for data collection, modelling, analysis and visualisation in:**
 
-> "The role of genetic observatory networks in the detection and forecasting of marine non-indigenous species"
->
-> Justine Pagnier, Tobias Andermann, Mats Gunnar Andersson, Matthias Obst
->
-> [Journal], [Year]  
-> DOI preprint: [[link]](https://doi.org/10.21203/rs.3.rs-8702791/v1)
+> Pagnier, J., Andermann, T., Andersson, M.G., Obst, M. ([Year]). 
+> The role of genetic observatory networks in the detection and 
+> forecasting of marine non-indigenous species. [Journal]. 
+> DOI preprint: https://doi.org/10.21203/rs.3.rs-8702791/v1
 
 ---
 
@@ -36,7 +34,62 @@ Each subdirectory contains its own `README.md` with detailed instructions.
 
 ## Quick demo
 
-To explore the modelling pipeline without running all 69 species, we suggest running the workflow on a subset of 2–3 species (e.g. Crepidula fornicata, Mnemiopsis leidyi) using the provided already thinned occurrence data and environmental layers ([here](https://figshare.com/s/ab27e1dcaee11ba59e88)). Full reproduction of the manuscript results requires running the complete pipeline on all 69 species as described in Section 4.
+Pre-processed occurrence data and environmental layers for all 69 species 
+are available at [Figshare DOI](https://figshare.com/s/ab27e1dcaee11ba59e88).
+
+**Minimum demo (< 1 minute, no downloads required):**
+1. Open `script/figures/figure_01.R` in R
+2. Set `base_dir` to any local directory
+3. Run the script — output is `Figure_1.pdf` in `base_dir/figures/`
+
+**Extended demo — modelling pipeline (2–3 hours, HPC recommended):**
+1. Download occurrence CSVs and environmental layers from [Figshare](https://figshare.com/s/ab27e1dcaee11ba59e88)
+   Species occurrences files follow this pattern `<species>_merged_thinned_2025-08-19.csv` in folder `/occurrences_0825`
+   Environmental layers are in the file `myExpl_shelf.tif` from `input/environmental_data.zip` in the [Figshare repo](https://figshare.com/s/ab27e1dcaee11ba59e88)
+2. Run species distribution models for 2–3 species by setting `SPECIES_LIST` 
+   in `script/modelling/01_modeling_mixedPA_array.slurm` to e.g. 
+   `c("Crepidulafornicata", "AcartiaAcanthacartiatonsa")`
+   In this same slurm script, edit:
+   `#SBATCH -A` (your project ID),
+   `#SBATCH --array=` ("1-2" for 2 species),
+   `cd` (your working directory where model outputs will be created)
+   `MODELING_DATE` which is the date of the analysis and will be used throughout the workflow
+3. Expected output: per-species suitability rasters in
+   folders with species names (e.g.`/Crepidulafornicata/`) as per BIOMOD2 default . Model evaluation 
+   metrics (TSS, AUC) in `eval/{SpeciesName}_mixed_myExpl_shelf_kfold/`
+
+
+> **No HPC access?** The modelling scripts can be run locally in R by 
+> passing arguments directly instead of using SLURM. For example, to run 
+> script 01 for *Crepidula fornicata* locally:
+> ```r
+> Args <- c(
+>   "Crepidulafornicata",              # species code
+>   "RF,GAM,GLM,MAXENT,XGBOOST",      # algorithms
+>   "20",                              # PA_dist_min (km)
+>   "100",                             # PA_dist_max (km)
+>   "kfold",                           # CV_strategy
+>   "3",                               # CV_nb_rep
+>   "NULL",                            # CV_perc_or_NULL
+>   "5",                               # CV_k_or_NULL
+>   "1",                               # n_cores (one only on your local computer)
+>   "path/to/myExpl_shelf.tif",        # env_file
+>   "path/to/output/",                 # outdir
+>   "2025-09-24"                       # modeling_date to update
+> )
+> # uncomment the debugging line at the top of the script:
+> # args <- Args
+> source("script/modelling/01_modeling_mixedPA_array.R")
+> ```
+> Expected run time per species on a standard desktop: 2–4 hours.
+
+Full reproduction of all manuscript results requires the complete pipeline 
+on all 69 species as described below.
+
+### Expected run time
+
+Expected run time: approximately 30–60 minutes per species on an 
+HPC node (1 CPU core), or 2–4 hours per species on a standard desktop.
 
 ---
 
@@ -70,9 +123,11 @@ PDC KTH) using SLURM array jobs.
 - **Scripts:** `01` through `04` (sequential, each with a `.slurm` companion)
 - **Key outputs:** Per-species suitability rasters for all scenarios
 
-> ℹ️ The modelling pipeline is not designed to be run locally. Download
-> processed model outputs from [[this repository](https://figshare.com/s/ab27e1dcaee11ba59e88)] to reproduce figures without re-running
-> the models.
+> ℹ️ The full modelling pipeline (~200 CPU hours for 69 species) is 
+> designed for HPC execution. For a small-scale test on 2–3 species, 
+> see the Quick demo section above. Download pre-computed outputs from 
+> [Figshare](https://figshare.com/s/ab27e1dcaee11ba59e88) to reproduce 
+> figures without re-running models.
 
 ### 4. Post-modelling processing
 Applies land and ecoregion masking, normalises outputs, computes species stacks,
@@ -137,7 +192,7 @@ install.packages(c("terra", "raster", "sf", "dplyr", "stars", "fBasics"))
   occurrence data pipeline (GBIF account required)
 - **Ecoregions:** MEOW shapefile — available from
   [Marine Regions](https://www.marineregions.org)
-- **Processed outputs:** Archived at [DOI] — download to skip modelling
+- **Processed outputs:** Archived in [[this repository](https://figshare.com/s/ab27e1dcaee11ba59e88)] — download to skip modelling
   and run figures directly
 
 ---
@@ -154,7 +209,7 @@ install.packages(c("terra", "raster", "sf", "dplyr", "stars", "fBasics"))
 7. Contingency areas (local)
 
 **To reproduce figures only:**
-1. Download processed outputs from [DOI]
+1. Download processed outputs from [[this repository](https://figshare.com/s/ab27e1dcaee11ba59e88)]
 2. Run `script/figures/figure_01.R` through `figure_06.R`
 3. Run `script/contingency.areas.computing/cold.spot.masterscript.R`
 
@@ -167,7 +222,10 @@ Set `base_dir` at the top of each script to your local directory.
 If you use code from this repository, please cite:
 
 **Our paper:**
-> [Full citation]
+> Pagnier, J., Andermann, T., Andersson, M.G., Obst, M. ([Year]). 
+> The role of genetic observatory networks in the detection and 
+> forecasting of marine non-indigenous species. [Journal]. 
+> DOI preprint: https://doi.org/10.21203/rs.3.rs-8702791/v1
 
 **Bio-ORACLE:**
 > Assis, J., Tyberghein, L., Bosch, S., Verbruggen, H., Serrão, E. A., & De Clerck, O. (2024). Bio-ORACLE v3.0. Pushing marine data layers to the CMIP6 Earth system models of climate change research. *Global Ecology and Biogeography*.
@@ -185,4 +243,4 @@ If you use code from this repository, please cite:
 **Justine Pagnier**  
 PhD Student, Marine Sciences  
 University of Gothenburg
-
+justine.pagnier@gu.se
