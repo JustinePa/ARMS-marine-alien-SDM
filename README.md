@@ -36,7 +36,7 @@ Each subdirectory contains its own `README.md` with detailed instructions.
 
 ## Quick demo
 
-To explore the modelling pipeline without running all 69 species, we suggest running the workflow on a subset of 2–3 species (e.g. Crepidula fornicata, Mnemiopsis leidyi) using the provided occurrence data and environmental layers ([here](https://figshare.com/s/ab27e1dcaee11ba59e88)). Full reproduction of the manuscript results requires running the complete pipeline on all 69 species as described in Section 4.
+To explore the modelling pipeline without running all 69 species, we suggest running the workflow on a subset of 2–3 species (e.g. Crepidula fornicata, Mnemiopsis leidyi) using the provided already thinned occurrence data and environmental layers ([here](https://figshare.com/s/ab27e1dcaee11ba59e88)). Full reproduction of the manuscript results requires running the complete pipeline on all 69 species as described in Section 4.
 
 ---
 
