@@ -16,7 +16,7 @@ be run directly, it calls the three subscripts automatically.
 ### Prerequisites
 
 - [ ] R 4.4.1 with the following packages installed:
-      `terra`, `raster`, `sf`, `dplyr`, `stars`
+      `terra`, `raster`, `sf`, `dplyr`, `stars`, `fBasics`, `ggplot2`, `ggpubr`
 - [ ] Post-modelling outputs: stacked mean suitability raster
       (`new_stack_mean_norm01_current.tif`) produced by the post-modelling
       pipeline or downloaded from the [Figshare repository](https://figshare.com/s/ab27e1dcaee11ba59e88)
@@ -143,6 +143,6 @@ not used in the publication.
 Swedish Veterinary Institute (SVA)  
 Email: gunnar.andersson@sva.se  
 Date: November 2025  
-Last Modified: January 13, 2025
+Last Modified: January 13, 2026
 
 
