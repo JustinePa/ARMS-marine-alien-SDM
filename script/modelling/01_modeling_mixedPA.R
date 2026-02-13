@@ -8,10 +8,10 @@ library(dplyr)
 # ========== Parse Command Line Args ==========
 # Usage: 01_modeling_mixedPA.R <species> <algorithms> <PA_dist_min> <PA_dist_max>
 #                           <CV_strategy> <CV_nb_rep> <CV_perc_or_NULL> <CV_k_or_NULL>
-#                           <n_cores> <env_file> <outdir>
+#                           <n_cores> <env_file> <outdir> <modeling_date>
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 11) {
-  stop("Usage: modeling_mixedPA.R <species> <algorithms> <PA_dist_min> <PA_dist_max> <CV_strategy> <CV_nb_rep> <CV_perc_or_NULL> <CV_k_or_NULL> <n_cores> <env_file> <outdir>")
+  stop("Usage: modeling_mixedPA.R <species> <algorithms> <PA_dist_min> <PA_dist_max> <CV_strategy> <CV_nb_rep> <CV_perc_or_NULL> <CV_k_or_NULL> <n_cores> <env_file> <outdir> <modeling_date>")
 }
 
 myRespName   <- args[1]
