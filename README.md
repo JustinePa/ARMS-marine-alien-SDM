@@ -37,10 +37,13 @@ Each subdirectory contains its own `README.md` with detailed instructions.
 Pre-processed occurrence data and environmental layers for all 69 species 
 are available at [Figshare DOI](https://figshare.com/s/ab27e1dcaee11ba59e88).
 
-**Minimum demo (< 1 minute, no downloads required):**
-1. Open `script/figures/figure_01.R` in R
-2. Set `base_dir` to any local directory
-3. Run the script — output is `Figure_1.pdf` in `base_dir/figures/`
+**Minimum demo (reproducing figures):**
+All scripts in `script/figures/` and `script/contingency.areas.computing/` 
+can be run on data found in [Figshare](https://figshare.com/s/ab27e1dcaee11ba59e88).
+Set `base_dir` at the top of each script to your local directory containing 
+the downloaded Figshare data.
+Expected output: all manuscript figures saved to `base_dir/figures/`
+Runtime is a few minutes per script
 
 **Extended demo — modelling pipeline (2–3 hours, HPC recommended):**
 1. Download occurrence CSVs and environmental layers from [Figshare](https://figshare.com/s/ab27e1dcaee11ba59e88)
@@ -55,8 +58,9 @@ are available at [Figshare DOI](https://figshare.com/s/ab27e1dcaee11ba59e88).
    `cd` (your working directory where model outputs will be created)
    `MODELING_DATE` which is the date of the analysis and will be used throughout the workflow
 3. Expected output: per-species suitability rasters in
-   folders with species names (e.g.`/Crepidulafornicata/`) as per BIOMOD2 default . Model evaluation 
+   folders with species names (e.g. `/Crepidulafornicata/`) as per BIOMOD2 default . Model evaluation 
    metrics (TSS, AUC) in `eval/{SpeciesName}_mixed_myExpl_shelf_kfold/`
+   Expected run time: 30–60 minutes per species on HPC (1 CPU core)
 
 
 > **No HPC access?** The modelling scripts can be run locally in R by 
@@ -72,7 +76,7 @@ are available at [Figshare DOI](https://figshare.com/s/ab27e1dcaee11ba59e88).
 >   "3",                               # CV_nb_rep
 >   "NULL",                            # CV_perc_or_NULL
 >   "5",                               # CV_k_or_NULL
->   "1",                               # n_cores (one only on your local computer)
+>   "1",                               # n_cores — use 1 on a local desktop (RAM is typically the limiting factor; ensure at least 8 GB available)
 >   "path/to/myExpl_shelf.tif",        # env_file
 >   "path/to/output/",                 # outdir
 >   "2025-09-24"                       # modeling_date to update
@@ -85,11 +89,6 @@ are available at [Figshare DOI](https://figshare.com/s/ab27e1dcaee11ba59e88).
 
 Full reproduction of all manuscript results requires the complete pipeline 
 on all 69 species as described below.
-
-### Expected run time
-
-Expected run time: approximately 30–60 minutes per species on an 
-HPC node (1 CPU core), or 2–4 hours per species on a standard desktop.
 
 ---
 
