@@ -69,7 +69,7 @@ Runtime is a few minutes per script
 > ```r
 > Args <- c(
 >   "Crepidulafornicata",              # species code
->   "RF,GAM,GLM,MAXENT,XGBOOST",      # algorithms
+>   "RF,GAM,MARS,MAXENT,XGBOOST",      # algorithms
 >   "20",                              # PA_dist_min (km)
 >   "100",                             # PA_dist_max (km)
 >   "kfold",                           # CV_strategy
