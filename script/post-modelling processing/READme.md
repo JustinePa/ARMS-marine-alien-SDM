@@ -8,7 +8,7 @@ and must be run after downloading all projection outputs from the cluster
 (Steps 3 and 4 of the modelling pipeline).
 
 > ℹ️ **The processed outputs used in the published analysis are archived
-> at [DOI]. If you only want to reproduce the figures, download these
+> on [Figshare](https://figshare.com/s/ab27e1dcaee11ba59e88). If you only want to reproduce the figures, download these
 > directly and skip to the figure scripts.**
 
 ### Prerequisites
