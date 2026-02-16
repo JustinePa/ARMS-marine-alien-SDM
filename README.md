@@ -1,10 +1,10 @@
-# Marine Alien Species Distribution Modeling - Scripts
+# Marine Alien Species Distribution Modeling
 
 **Scripts used for data collection, modelling, analysis and visualisation in:**
 
-> Pagnier, J., Andermann, T., Andersson, M.G., Obst, M. ([Year]). 
+> Pagnier, J., Andermann, T., Andersson, M.G., Obst, M. (2026). 
 > The role of genetic observatory networks in the detection and 
-> forecasting of marine non-indigenous species. [Journal]. 
+> forecasting of marine non-indigenous species.
 > DOI preprint: https://doi.org/10.21203/rs.3.rs-8702791/v1
 
 ---
