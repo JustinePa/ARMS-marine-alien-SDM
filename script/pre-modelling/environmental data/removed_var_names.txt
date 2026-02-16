@@ -1,0 +1,15 @@
+phyc_mean_depthmean
+no3_mean_depthmean
+o2_mean_depthmean
+o2_max_depthmean
+po4_mean_depthmean
+thetao_mean_depthmean
+thetao_max_depthmean
+thetao_mean_depthsurf
+thetao_min_depthsurf
+thetao_max_depthsurf
+o2_mean_depthsurf
+o2_min_depthsurf
+o2_max_depthsurf
+no3_mean_depthsurf
+chl_mean_depthsurf
