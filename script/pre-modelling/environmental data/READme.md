@@ -9,7 +9,7 @@ projections (2100, SSP1-2.6, SSP2-4.5, SSP5-8.5), both clipped to the
 continental shelf (≤200m depth).
 
 > ℹ️ **The processed environmental layers used in the published analysis are
-> archived at [DOI]. If you only want to reproduce the models or figures,
+> archived on [Fighare](https://figshare.com/s/ab27e1dcaee11ba59e88). If you only want to reproduce the models or figures,
 > you can download these directly and skip to the modelling pipeline.**
 > Re-running this pipeline from scratch requires a Bio-ORACLE API connection
 > and approximately 1–2 hours of processing time.
@@ -133,7 +133,7 @@ projection compatibility by replacing depth-mean chlorophyll
 > from the published analysis are committed to this repository. If you
 > re-run this script, variable selection may differ slightly due to the
 > stepwise nature of the VIF algorithm. To exactly reproduce the published
-> analysis, use the archived `myExpl_final.tif` from [DOI] rather than
+> analysis, use the archived `myExpl_final.tif` from [Figshare](https://figshare.com/s/ab27e1dcaee11ba59e88) rather than
 > re-running this script.
 
 ---
